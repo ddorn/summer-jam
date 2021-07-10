@@ -42,7 +42,7 @@ class Debug(Object):
 
         self.lasts = [[], [], [], []]
 
-        self.enabled = DEBUG
+        self.enabled = False
         self.paused = False
 
         self.frame_times = [0]

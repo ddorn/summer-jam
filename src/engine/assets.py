@@ -5,8 +5,6 @@ from .constants import *
 from .settings import settings
 from .utils import overlay
 
-VOLUMES = {"shoot": 0.4, "denied": 0.8, "hit": 0.7}
-
 
 @lru_cache()
 def sound(name):
@@ -121,6 +119,8 @@ def tilemap(name, x, y, tile_size=32):
 
     return img.subsurface((x * tile_size, y * tile_size, tile_size, tile_size))
 
+
+# We can do better...
 
 class Animation:
     def __init__(self, name: str, override_frame_duration=None, flip_x=False):
