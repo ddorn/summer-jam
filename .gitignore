@@ -1,0 +1,6 @@
+__pycache__
+.envrc
+build/
+dist/
+*.spec
+*.egg-info
