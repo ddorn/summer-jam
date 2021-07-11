@@ -5,18 +5,31 @@ import pygame
 
 from .gfx import GFX
 from .assets import font, rotate
-from .constants import GREEN, RED
+from .constants import GREEN, RED, UPWARDS
 from .particles import ImageParticle
+from .utils import overlay, random_in_rect, random_rainbow_color
 
 if TYPE_CHECKING:
     from . import State
 
 __all__ = ["Object", "Entity", "SpriteObject", "Scriptable"]
 
-from .utils import overlay, random_in_rect, random_rainbow_color
 
 
 class Scriptable:
+    """Base class of most game objects.
+
+    A Scriptable is a collection of scripts, which are generators
+    and are meant to run one iteration per frame.
+    A script is automatically removed when it reaches its end,
+    that is, when the generator raises StopIteration
+
+    A new script can be added to run in parallel of the other
+    with .add_script().
+
+    Objects, but also States are Scriptable.
+    """
+
     def __init__(self):
         self.scripts = set()
 
@@ -24,6 +37,8 @@ class Scriptable:
         self.scripts.add(generator)
 
     def logic(self):
+        """Call the next frame of each script."""
+
         to_remove = set()
         for script in self.scripts:
             try:
@@ -33,7 +48,15 @@ class Scriptable:
         self.scripts.difference_update(to_remove)
 
     def do_later(self, nb_of_frames):
-        """Decorator to automatically call a function :nb_of_frames: later."""
+        """Decorator to automatically call a function :nb_of_frames: later.
+
+        Examples:
+            Write "BOOOM" after 60 frames:
+            >>> object = Scriptable()
+            >>> @object.do_later(60)
+            >>> def explode():
+            >>>     print("BOOOOM")
+        """
 
         def decorator(func):
             def script():
@@ -47,27 +70,35 @@ class Scriptable:
 
 
 class Object(Scriptable):
-    Z = 0
+    """Base class for everythink in the game world."""
+
+    Z = 0  # Z-Index to determine in which order to draw objects.
 
     def __init__(self, pos, size=(1, 1), vel=(0, 0)):
         super().__init__()
         self.pos = pygame.Vector2(pos)
         self.size = pygame.Vector2(size)
         self.vel = pygame.Vector2(vel)
+        # Should we have acceleration too ? Maybe. Idk.
         self.alive = True
-        self.scripts = {self.script()}
         self.state: Optional["State"] = None
 
         # A somewhat unique color per object, that can be used for debugging
         self._random_color = random_rainbow_color(80)
 
+        self.add_script(self.script())
+
     def __str__(self):
         return f"{self.__class__.__name__}(at {self.pos})"
 
     def script(self):
+        """Override this generator to add a script to the objects.
+
+        Other scripts/generators can be added with .add_script()"""
         yield
 
     def wait_until_dead(self):
+        """Script that wait and does nothing while the object is alive."""
         while self.alive:
             yield
 
@@ -76,7 +107,7 @@ class Object(Scriptable):
         return self.pos + self.size / 2
 
     @center.setter
-    def center(self, value):
+    def center(self, value: pygame.Vector2):
         self.pos = value - self.size / 2
 
     @property
@@ -84,8 +115,9 @@ class Object(Scriptable):
         return pygame.Rect(self.pos, self.size)
 
     def logic(self):
-        """Overwrite this to update the object every frame.
+        """Override this with the logic needed to evolve the object to the next frame.
 
+        Don't forget to call super().logic() !!
         """
 
         super().logic()
@@ -96,21 +128,18 @@ class Object(Scriptable):
         self.state.debug.vector(self.vel * 10, self.center, self._random_color)
 
     def draw(self, gfx: "GFX"):
-        pass
+        """Override this to draw the object on the screen every frame."""
 
-    def on_death(self, state):
-        """Overwrite this to have a logic when the object dies.
-
-        Args:
-            state (State): Current state of the app.
-        """
+    def on_death(self):
+        """Method called whenever the object dies."""
 
     def resize(self, old, new):
         """Called every time the window resizes.
 
         This should not have any impoact on position/speed,
         as they should not depend on the window size. Instead
-        this should handle the different sprite sizes.
+        this should handle the different sprite sizes (for instance)
+
         Args:
             old (pygame.Vector2): previous size of the window
             new (pygame.Vector2): actual size of the window
@@ -122,8 +151,11 @@ class Object(Scriptable):
 
 
 class SpriteObject(Object):
+    # SpriteObjects are automatically scaled by this amount.
+    # It is not meant to be changed at runtime.
     SCALE = 1
-    INITIAL_ROTATION = -90
+    # The direction that the sprite is facing in its source image.
+    INITIAL_ROTATION = UPWARDS
 
     def __init__(
         self,
@@ -134,7 +166,18 @@ class SpriteObject(Object):
         vel=(0, 0),
         rotation=0,
     ):
-        # :size: is not related to the image, but to the hitbox
+        """
+        An object with an image.
+
+        Args:
+            pos: position of the object in world coordinates, the topleft of its hitbox
+            image: sprite drawn every frame
+            offset: vector between the topleft of the image to the topleft of the hitbox, in pixels.
+                Usually negative numbers, as the hitbox is smaller than the sprite.
+            size: Size of the hitbox
+            vel: initial velocity
+            rotation: initial rotation of the image
+        """
 
         super().__init__(pos, size, vel)
         if self.SCALE > 1:
@@ -159,14 +202,11 @@ class SpriteObject(Object):
 
     def draw(self, gfx: "GFX"):
         super().draw(gfx)
-        gfx.surf.blit(self.image, self.image.get_rect(center=self.sprite_center))
-
-    @property
-    def sprite_pos(self):
-        return self.pos + self.image_offset * self.SCALE
+        gfx.blit(self.image, center=self.sprite_center)
 
     @property
     def sprite_center(self):
+        """Position of the center of the sprite, in world coordinates."""
         return (
             self.pos
             + self.image_offset * self.SCALE
@@ -186,8 +226,12 @@ class SpriteObject(Object):
         return r
 
 
+# This class might be a bit specific for Flyre,
+# but I leave it there as a base for a future class.
+
+
 class Entity(SpriteObject):
-    """An object with heath and a sprite."""
+    """An object with health and a sprite."""
 
     INVICIBILITY_DURATION = 0
     INITIAL_LIFE = 1000

@@ -136,7 +136,7 @@ class State(Scriptable):
         for object in self.objects:
             if not object.alive:
                 to_remove.add(object)
-                object.on_death(self)
+                object.on_death()
         self.objects.difference_update(to_remove)
 
     def draw(self, gfx: "GFX"):

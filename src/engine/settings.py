@@ -55,5 +55,8 @@ class Settings:
     def reset(self):
         """Reset the settings."""
 
+        # There is nothing here as this method is swapped with __init__
+        # after the first instance. You don't like black magic ???
+
 
 settings = Settings()
