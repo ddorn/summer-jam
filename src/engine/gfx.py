@@ -6,6 +6,21 @@ import pygame.gfxdraw
 __all__ = ["GFX"]
 
 
+# /!\ Experimental class.
+#
+# The main idea of this was to be a wrapper around pygame.draw and pygame.gfxdraw
+# that would take world transformations into account when drawing.
+# One might think that the problem is that it would be slow, but I don't think the
+# overhead will be that significant, except, maybe, when drawing lots of small things,
+# like particles.
+# The main problem right now is that it is impractical. I haven't yet found a standard way to
+# do this and change it from game to game...
+# There are thus multiple functions that do not work here, and some that have no sense,
+# but eventually I'll figure all this out.
+#
+# For now, just think of GFX as a wrapper around pygame.Surface with a better .blit() method.
+
+
 class GFX:
     def __init__(self, surf: pygame.Surface):
         self.surf = surf

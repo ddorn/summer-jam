@@ -43,6 +43,7 @@ class FixedScreen(Screen):
 
     def __init__(self, size):
         self.window_size = size
+        self.resize()
 
     def resize(self, new_size=None):
         super().resize(None)
@@ -50,7 +51,7 @@ class FixedScreen(Screen):
 
 class FreeScreen(Screen):
     def __init__(self, size=None):
-        self.window_size = size or pygame.display.list_modes()[0]
+        self.window_size = size or self._biggest_screen_available()
         self.resize()
 
 

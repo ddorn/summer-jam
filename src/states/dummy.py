@@ -14,7 +14,7 @@ class DummyState(State):
         self.data = [
             (
                 random_in_rect(SCREEN),
-                random_rainbow_color(),
+                random_rainbow_color(70, 80),
                 randint(4, 25)
             )
             for _ in range(100)
@@ -29,6 +29,11 @@ class DummyState(State):
     def logic(self):
         super().logic()
         if self.timer > 30:
+            next_ = DummyState() if isinstance(self, DummyState2) else DummyState2()
             self.replace_state(
-                SquareSpawnTransistion(self, DummyState())
+                SquarePatternTransition.random(self, next_)
             )
+
+class DummyState2(DummyState):
+    BG_COLOR = 0x541232
+
