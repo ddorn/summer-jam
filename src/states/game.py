@@ -1,5 +1,5 @@
-from objects import *
-from engine import App, State
+from objects.player import *
+from engine import State
 
 
 class GameState(State):

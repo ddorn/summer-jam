@@ -35,5 +35,5 @@ from states.card_test import CardTestState
 from engine import SIZE, App, IntegerScaleScreen
 
 if __name__ == "__main__":
-    App(GameState, IntegerScaleScreen(SIZE)).run()
-    # App(CardTestState, IntegerScaleScreen(SIZE)).run()
+    # App(GameState, IntegerScaleScreen(SIZE)).run()
+    App(CardTestState, IntegerScaleScreen(SIZE)).run()

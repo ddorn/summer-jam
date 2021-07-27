@@ -3,6 +3,8 @@ from pygame import Vector2
 
 from engine import *
 
+__all__ = ["Player", "Ennemy", "Bullet"]
+
 
 class Player(Object):
     VELOCITY = 4

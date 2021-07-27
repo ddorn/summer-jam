@@ -1,13 +1,16 @@
-import pygame
 import random
 from typing import List
 
-from src.engine import *
-
-from ..objects.card import Card, Transition
+from engine import *
+from objects import Card, Transition, Player, Ennemy
 
 
 class CardTestState(State):
+    BG_COLORS = [
+        0x134180,
+        0x9463aa,
+        0x3c926e,
+    ]
     def __init__(self):
         super().__init__()
 
@@ -21,6 +24,7 @@ class CardTestState(State):
         for i in range(card_num):
             image = pygame.Surface(card_size, pygame.SRCALPHA)
             image.fill(random_rainbow_color(60))
+            pygame.draw.circle(image, "white", (30, 50), 15, 4)
 
             x = (
                 (W // 2 - card_num * (spacing / 2))
@@ -60,6 +64,13 @@ class CardTestState(State):
                 ),
             )
             self.cards.append(self.add(card))
+
+        self.player = self.add(Player())
+        self.spawn()
+
+    def spawn(self):
+        for x in range(30):
+            self.add(Ennemy((30, -30 - 40* x)))
 
     def show_cards(self, _):
         for card in self.cards:
