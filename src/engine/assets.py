@@ -41,7 +41,9 @@ def rotate(image, degrees):
 
 @lru_cache(1000)
 def scale(image, factor):
-    size = factor * image.get_width(), factor * image.get_height()
+    if not isinstance(factor, int):
+        print(f"Warning: scaling {image} by non integer factor {factor}.")
+    size = int(factor * image.get_width()), int(factor * image.get_height())
     return pygame.transform.scale(image, size)
 
 

@@ -274,15 +274,19 @@ class Button:
 
     def always_call(self, callback):
         self._always.add(callback)
+        return self
 
     def on_press(self, callback):
         self._on_press.add(callback)
+        return self
 
     def on_release(self, callback):
         self._on_release.add(callback)
+        return self
 
     def on_double_press(self, callback):
         self._on_double_press.add(callback)
+        return self
 
     def on_press_repeated(self, callback, delay):
         """
@@ -291,6 +295,7 @@ class Button:
         """
 
         self._repeat.add(RepeatCallback(callback, delay))
+        return self
 
     def remove(self, callback):
         """Remove a callback from from everywhere it was registered."""
@@ -354,6 +359,7 @@ class Axis:
 
     def always_call(self, callback):
         self._callbacks.add(callback)
+        return self
 
     def remove(self, callback):
         if callback in self._callbacks:

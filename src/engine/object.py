@@ -1,5 +1,5 @@
 from random import gauss
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, Tuple, TYPE_CHECKING
 
 import pygame
 
@@ -161,7 +161,7 @@ class SpriteObject(Object):
         pos,
         image: pygame.Surface,
         offset=(0, 0),
-        size=(1, 1),
+        size: Optional[Tuple[int, int]]=None,
         vel=(0, 0),
         rotation=0,
     ):
@@ -178,14 +178,18 @@ class SpriteObject(Object):
             rotation: initial rotation of the image
         """
 
-        super().__init__(pos, size, vel)
         if self.SCALE > 1:
             image = pygame.transform.scale(
                 image, (self.SCALE * image.get_width(), self.SCALE * image.get_height())
             )
+        if size is None:
+            size = image.get_size()
+
         self.base_image = image
         self.image_offset = pygame.Vector2(offset)
         self.rotation = rotation
+
+        super().__init__(pos, size, vel)
 
     @property
     def angle(self):

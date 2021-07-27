@@ -203,7 +203,8 @@ class State(Scriptable):
             first = self.timer // self.BG_TRANSITION_TIME % len(self.BG_COLORS)
             second = (first + 1) % len(self.BG_COLORS)
             t = (self.timer % self.BG_TRANSITION_TIME) / self.BG_TRANSITION_TIME
-            bg = mix(self.BG_COLORS[first], self.BG_COLORS[second], t)
+            bg = Color(self.BG_COLORS[first]).lerp(self.BG_COLORS[second], t)
+            # bg = mix(self.BG_COLORS[first], self.BG_COLORS[second], t)
 
             self.BG_COLOR = bg
 
@@ -275,3 +276,8 @@ class StateMachine:
                 self.stack[-1].on_exit()
             self.stack.append(new)
             new.on_resume()
+        else:
+            print(type(op).__module__, StateOperations.__module__)
+            print(type(op) == StateOperations)
+            print(op, new)
+            raise ValueError("Unknown operation type.")

@@ -23,7 +23,7 @@ run:
 
 clean:
 	rm -rf build
-	rm -rf **/__pycache__ __pycache__
+	rm -rf */*/__pycache__ __pycache__
 
 distclean: clean
 	rm -rf dist

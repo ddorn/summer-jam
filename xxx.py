@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import sys
+from pathlib import Path
+
 
 
 def abort_dependency(name, got=""):
@@ -25,8 +27,13 @@ except ImportError:
 if pygame.version.vernum < (2, 0, 1):
     abort_dependency(f"pygame 2.0.1", f"pygame {pygame.version.ver}")
 
-from src.engine import SIZE, App, IntegerScaleScreen
-from src.states.card_test import CardTestState
+sys.path.append(str((Path(__file__).parent / "src").absolute()))
+
+# It is important not to import from SRC
+from states.game import GameState
+from states.card_test import CardTestState
+from engine import SIZE, App, IntegerScaleScreen
 
 if __name__ == "__main__":
-    App(CardTestState, IntegerScaleScreen(SIZE)).run()
+    App(GameState, IntegerScaleScreen(SIZE)).run()
+    # App(CardTestState, IntegerScaleScreen(SIZE)).run()
