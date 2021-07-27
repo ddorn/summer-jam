@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 __all__ = ["Object", "Entity", "SpriteObject", "Scriptable"]
 
 
-
 class Scriptable:
     """Base class of most game objects.
 

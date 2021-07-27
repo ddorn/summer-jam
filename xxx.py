@@ -2,6 +2,7 @@
 
 import sys
 
+
 def abort_dependency(name, got=""):
     if got:
         # The leading space is important.
@@ -25,7 +26,7 @@ if pygame.version.vernum < (2, 0, 1):
     abort_dependency(f"pygame 2.0.1", f"pygame {pygame.version.ver}")
 
 from src.engine import SIZE, App, IntegerScaleScreen
-from src.states.dummy import DummyState
+from src.states.card_test import CardTestState
 
 if __name__ == "__main__":
-    App(DummyState, IntegerScaleScreen(SIZE)).run()
+    App(CardTestState, IntegerScaleScreen(SIZE)).run()

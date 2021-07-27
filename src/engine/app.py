@@ -25,7 +25,7 @@ class App(StateMachine):
 
     NAME = GAME_NAME
     MAIN_APP: "App" = None
-    MOUSE_VISIBLE = False
+    MOUSE_VISIBLE = True
 
     def __init__(self, initial_state: Type[State], resizing: Screen):
         App.MAIN_APP = self
