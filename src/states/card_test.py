@@ -2,15 +2,16 @@ import random
 from typing import List
 
 from engine import *
-from objects import Card, Transition, Player, Ennemy
+from objects import *
 
 
 class CardTestState(State):
     BG_COLORS = [
         0x134180,
-        0x9463aa,
-        0x3c926e,
+        0x9463AA,
+        0x3C926E,
     ]
+
     def __init__(self):
         super().__init__()
 
@@ -26,11 +27,7 @@ class CardTestState(State):
             image.fill(random_rainbow_color(60))
             pygame.draw.circle(image, "white", (30, 50), 15, 4)
 
-            x = (
-                (W // 2 - card_num * (spacing / 2))
-                + (i * spacing)
-                - (card_size[0] - spacing) / 2
-            )
+            x = (W // 2 - card_num * (spacing / 2)) + (i * spacing) - (card_size[0] - spacing) / 2
             if card_num % 2 == 0:
                 r = (card_num / 2 - (i + 0.5)) * rotation
             else:
@@ -69,8 +66,9 @@ class CardTestState(State):
         self.spawn()
 
     def spawn(self):
-        for x in range(30):
-            self.add(Ennemy((30, -30 - 40* x)))
+        ai = EnemyBlockAI()
+        for e in ai.spawn():
+            self.add(e)
 
     def show_cards(self, _):
         for card in self.cards:
@@ -97,4 +95,4 @@ class CardTestState(State):
 
     def draw(self, gfx: "GFX"):
         super().draw(gfx)
-        pygame.draw.line(gfx.surf, (200, 200, 200), (W // 2, 0), (W // 2, H))
+        # pygame.draw.line(gfx.surf, (200, 200, 200), (W // 2, 0), (W // 2, H))

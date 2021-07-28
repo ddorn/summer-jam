@@ -43,9 +43,9 @@ def chrange(
 ):
     """Change the range of a number by mapping the initial_range to target_range using a linear transformation."""
     normalised = (x - initial_range[0]) / (initial_range[1] - initial_range[0])
-    normalised **= power
     if flipped:
         normalised = 1 - normalised
+    normalised **= power
     return normalised * (target_range[1] - target_range[0]) + target_range[0]
 
 
