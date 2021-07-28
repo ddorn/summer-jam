@@ -49,6 +49,10 @@ class Scriptable:
     def do_later(self, nb_of_frames):
         """Decorator to automatically call a function :nb_of_frames: later.
 
+        Warning: when used with objects, the script is canceled when
+        the object dies and is removed from the state. For a script
+        to outlive its object, it has to be registred on the state directly.
+
         Examples:
             Write "BOOOM" after 60 frames:
             >>> object = Scriptable()
@@ -161,7 +165,7 @@ class SpriteObject(Object):
         pos,
         image: pygame.Surface,
         offset=(0, 0),
-        size: Optional[Tuple[int, int]]=None,
+        size: Optional[Tuple[int, int]] = None,
         vel=(0, 0),
         rotation=0,
     ):
@@ -240,13 +244,7 @@ class Entity(SpriteObject):
     INITIAL_LIFE = 1000
 
     def __init__(
-        self,
-        pos,
-        image: pygame.Surface,
-        offset=(0, 0),
-        size=(1, 1),
-        vel=(0, 0),
-        rotation=0,
+        self, pos, image: pygame.Surface, offset=(0, 0), size=(1, 1), vel=(0, 0), rotation=0,
     ):
         super().__init__(pos, image, offset, size, vel, rotation)
         self.max_life = self.INITIAL_LIFE
@@ -318,8 +316,7 @@ class Entity(SpriteObject):
     def draw(self, gfx):
         if self.last_hit < 3:
             gfx.surf.blit(
-                overlay(self.image, RED),
-                self.image.get_rect(center=self.sprite_center),
+                overlay(self.image, RED), self.image.get_rect(center=self.sprite_center),
             )
             return
 
