@@ -12,7 +12,7 @@ class StateTransition(State):
 
     A transition is a visual effect that blends the image of one state into the other."""
 
-    def __init__(self, previous: State, next_: State, duration: int=None):
+    def __init__(self, previous: State, next_: State, duration: int = None):
         if duration is None:
             duration = 60
 
@@ -99,7 +99,7 @@ class SquareSpawnTransition(StateTransition):
 
             if life > 0:
                 black_size = min(self.square_size, life)
-                pygame.draw.rect(gfx.surf, 'black', self.get_rect(i, black_size))
+                pygame.draw.rect(gfx.surf, "black", self.get_rect(i, black_size))
 
     def get_rect(self, idx, size):
         x, y = self.to_xy(idx)
@@ -109,20 +109,26 @@ class SquareSpawnTransition(StateTransition):
         rect.center = x, y
         return rect
 
+
 class SquarePatternTransition(SquareSpawnTransition):
-    def __init__(self, previous: State, next_: State, pattern: Callable[[int, int], int], square_size=32, delay=64, grow_duration=0):
+    def __init__(
+        self,
+        previous: State,
+        next_: State,
+        pattern: Callable[[int, int], int],
+        square_size=32,
+        delay=64,
+        grow_duration=0,
+    ):
         self.pattern = pattern
         super().__init__(previous, next_, square_size, delay, grow_duration)
 
     def spawn_squares(self) -> List[int]:
-        return [
-            self.pattern(*self.to_xy(i))
-            for i in range(self.square_count())
-        ]
+        return [self.pattern(*self.to_xy(i)) for i in range(self.square_count())]
 
     @classmethod
     def circle(cls, prev, next_, delay=0, speed=1, square_size=12):
-        return cls(prev, next_, lambda x, y: sqrt(x*x+y*y)*speed, square_size, delay)
+        return cls(prev, next_, lambda x, y: sqrt(x * x + y * y) * speed, square_size, delay)
 
     @classmethod
     def random(cls, prev, next, speed=1, square_size=16, delay=0, grow_duration=0):
@@ -130,22 +136,23 @@ class SquarePatternTransition(SquareSpawnTransition):
         w = ceil(W / square_size)
         h = ceil(H / square_size)
 
-        point = choice([
-            (w*x, h*y)
-            for x in (0, 0.5, 1)
-            for y in (0, 0.5, 1)
-        ] + [(uniform(0, w), uniform(0, h))])
+        point = choice(
+            [(w * x, h * y) for x in (0, 0.5, 1) for y in (0, 0.5, 1)]
+            + [(uniform(0, w), uniform(0, h))]
+        )
 
-        pattern = choice([
-            lambda x, y: sqrt((x - point[0])**2 + (y - point[1])**2),  # circle
-            lambda x, y: abs(x - point[0]) + abs(y - point[1]),  # diamond
-            lambda x, y: max(abs(x - point[0]), abs(y - point[1])),  # square
-        ])
+        pattern = choice(
+            [
+                lambda x, y: sqrt((x - point[0]) ** 2 + (y - point[1]) ** 2),  # circle
+                lambda x, y: abs(x - point[0]) + abs(y - point[1]),  # diamond
+                lambda x, y: max(abs(x - point[0]), abs(y - point[1])),  # square
+            ]
+        )
 
-        return cls(prev, next, lambda x, y: int(pattern(x, y)), square_size, delay, grow_duration)
+        return cls(prev, next, lambda x, y: int(pattern(x, y)), square_size, delay, grow_duration,)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # This example can be run with:
     #   python -m src.engine.state_transitions
 
@@ -154,19 +161,15 @@ if __name__ == '__main__':
     from .app import App
     from .screen import FixedScreen
 
-
     class DummyState(State):
         """State with random circles, that transitions to itself with random transition."""
+
         BG_COLOR = 0x321254
 
         def __init__(self):
             super().__init__()
             self.data = [
-                (
-                    random_in_rect(SCREEN),
-                    random_rainbow_color(70, 80),
-                    randint(4, 25)
-                )
+                (random_in_rect(SCREEN), random_rainbow_color(70, 80), randint(4, 25))
                 for _ in range(100)
             ]
 
@@ -180,9 +183,7 @@ if __name__ == '__main__':
             super().logic()
             if self.timer > 30:
                 next_ = DummyState() if isinstance(self, DummyState2) else DummyState2()
-                self.replace_state(
-                    SquarePatternTransition.random(self, next_)
-                )
+                self.replace_state(SquarePatternTransition.random(self, next_))
 
     class DummyState2(DummyState):
         BG_COLOR = 0x541232

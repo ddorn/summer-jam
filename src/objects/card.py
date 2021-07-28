@@ -1,4 +1,3 @@
-from src.engine.pygame_input import MouseButton
 from typing import Dict
 from random import gauss
 import pygame
@@ -94,14 +93,10 @@ class Card(SpriteObject):
     ROTATION = -4
 
     def __init__(
-        self,
-        image,
-        pos=(0, 0),
+        self, image, pos=(0, 0),
     ):
         size = image.get_rect()
-        super().__init__(
-            pos, image, offset=(0, 0), size=size.size, vel=(0, 0), rotation=0
-        )
+        super().__init__(pos, image, offset=(0, 0), size=size.size, vel=(0, 0), rotation=0)
         self.transitions: Dict[str, Transition] = {}
         self.shown = False
         self.hovered = False
@@ -178,13 +173,7 @@ class Card(SpriteObject):
             ),
         )
         self.add_transition(
-            "use",
-            Transition(
-                self,
-                self.FRAME_COUNT,
-                start_pos=pos3,
-                end_pos=pos4,
-            ),
+            "use", Transition(self, self.FRAME_COUNT, start_pos=pos3, end_pos=pos4,),
         )
 
     def add_transition(self, name: str, transition: Transition):

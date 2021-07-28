@@ -240,13 +240,7 @@ class Entity(SpriteObject):
     INITIAL_LIFE = 1000
 
     def __init__(
-        self,
-        pos,
-        image: pygame.Surface,
-        offset=(0, 0),
-        size=(1, 1),
-        vel=(0, 0),
-        rotation=0,
+        self, pos, image: pygame.Surface, offset=(0, 0), size=(1, 1), vel=(0, 0), rotation=0,
     ):
         super().__init__(pos, image, offset, size, vel, rotation)
         self.max_life = self.INITIAL_LIFE
@@ -318,8 +312,7 @@ class Entity(SpriteObject):
     def draw(self, gfx):
         if self.last_hit < 3:
             gfx.surf.blit(
-                overlay(self.image, RED),
-                self.image.get_rect(center=self.sprite_center),
+                overlay(self.image, RED), self.image.get_rect(center=self.sprite_center),
             )
             return
 

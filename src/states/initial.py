@@ -6,17 +6,14 @@ from src.engine import *
 from src.engine.state_transitions import *
 from .game import GameState
 
+
 class InitialState(State):
     BG_COLOR = 0x321254
 
     def __init__(self):
         super().__init__()
         self.data = [
-            (
-                random_in_rect(SCREEN),
-                random_rainbow_color(70, 80),
-                randint(4, 25)
-            )
+            (random_in_rect(SCREEN), random_rainbow_color(70, 80), randint(4, 25))
             for _ in range(100)
         ]
 
@@ -30,7 +27,4 @@ class InitialState(State):
         super().logic()
         if self.timer > 30:
             next_ = GameState()
-            self.replace_state(
-                SquarePatternTransition.random(self, next_)
-            )
-
+            self.replace_state(SquarePatternTransition.random(self, next_))

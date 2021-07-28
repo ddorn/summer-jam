@@ -4,7 +4,6 @@ import sys
 from pathlib import Path
 
 
-
 def abort_dependency(name, got=""):
     if got:
         # The leading space is important.

@@ -33,26 +33,20 @@ class Title(Object):
     def enlarge(self):
         widen_frames = 40
         for i in range(widen_frames):
-            self.bg_rect.width = (WORLD.width + 2) * chrange(
-                i, (0, widen_frames - 1), (0, 1)
-            )
+            self.bg_rect.width = (WORLD.width + 2) * chrange(i, (0, widen_frames - 1), (0, 1))
             self.bg_rect.center = self.center
             yield
 
         larger_frames = 20
         for i in range(larger_frames):
-            self.bg_rect.height = (self.size.y + 10) * chrange(
-                i, (0, larger_frames - 1), (0, 1)
-            )
+            self.bg_rect.height = (self.size.y + 10) * chrange(i, (0, larger_frames - 1), (0, 1))
             self.bg_rect.center = self.center
             yield
 
         text_appear_frames = 40
         for i in range(text_appear_frames):
             r = self.text_surf.get_rect()
-            r.inflate_ip(
-                -r.w * chrange(i, (0, text_appear_frames), (0, 1), flipped=True), 0
-            )
+            r.inflate_ip(-r.w * chrange(i, (0, text_appear_frames), (0, 1), flipped=True), 0)
             self.shown_image = self.text_surf.subsurface(r)
             yield
 
@@ -71,7 +65,7 @@ class Title(Object):
             self.shown_image = self.text_surf.subsurface(
                 self.text_surf.get_rect().inflate(
                     0, -self.size.y * chrange(i, (0, larger_frames - 1), (0, 1)),
-                       )
+                )
             )
             yield
 
@@ -105,6 +99,7 @@ class Title(Object):
 
 class Menu(Object):
     """Simple menu to choose a callback."""
+
     Z = 10
 
     def __init__(self, midtop, actions: Dict[str, Callable[[], None]]):
@@ -125,9 +120,7 @@ class Menu(Object):
         )
         up.on_press(lambda _: self.change_selection(-1))
 
-        down = Button(
-            K_DOWN, K_s, JoyAxisTrigger(JOY_VERT_RIGHT), JoyAxisTrigger(JOY_VERT_LEFT)
-        )
+        down = Button(K_DOWN, K_s, JoyAxisTrigger(JOY_VERT_RIGHT), JoyAxisTrigger(JOY_VERT_LEFT))
         down.on_press(lambda _: self.change_selection(+1))
 
         select = Button(
@@ -178,6 +171,7 @@ class Text(SpriteObject):
     For when it is simpler to have an independant object
     instead of bliting text in .draw() calls.
     """
+
     Z = 10
 
     def __init__(self, txt, color, size: int, font_name=None, **anchor):

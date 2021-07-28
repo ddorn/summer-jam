@@ -1,7 +1,7 @@
 from math import cos, pi, sin
 from random import choice, gauss, randint, random, uniform
 from time import time
-from typing import Callable, Generic, Tuple, TypeVar, Union
+from typing import Callable, Generic, Optional, Tuple, TypeVar, Union
 
 import pygame
 import pygame.gfxdraw as gfx
@@ -108,6 +108,22 @@ class ParticleSystem(set):
             .anim_fade()
             .build()
         )
+
+    def add_explosion(self, pos, intensity=100, qte: Optional[float] = None, color="white"):
+        if qte is None:
+            qte = intensity / 2
+
+        for i in rrange(qte):
+            self.add(
+                SquareParticle(color)
+                .builder()
+                .at(pos, uniform(0, 360))
+                .velocity(gauss(intensity / 30, intensity / 100))
+                .sized(2)
+                .living(intensity // 4)
+                .anim_fade()
+                .build()
+            )
 
 
 class ParticleFountain:
@@ -250,9 +266,7 @@ class Particle:
                 angle = particle.angle % 360
                 if particle.pos.x - particle.size < rect.left and 90 < angle < 270:
                     particle.angle = 180 - angle
-                elif particle.pos.x + particle.size > rect.right and (
-                    angle < 90 or angle > 270
-                ):
+                elif particle.pos.x + particle.size > rect.right and (angle < 90 or angle > 270):
                     particle.angle = 180 - angle
 
                 angle = particle.angle % 360
@@ -275,9 +289,7 @@ class Particle:
             initial_size = self._p.size
 
             def bounce_size(particle):
-                particle.size = (
-                    bounce(particle.life_prop, increase_duration, k) * initial_size
-                )
+                particle.size = bounce(particle.life_prop, increase_duration, k) * initial_size
 
             return self.anim(bounce_size)
 
@@ -387,9 +399,7 @@ class CircleParticle(DrawnParticle):
                     surf, int(self.pos.x), int(self.pos.y), int(self.size), self.color
                 )
             else:
-                gfx.circle(
-                    surf, int(self.pos.x), int(self.pos.y), int(self.size), self.color
-                )
+                gfx.circle(surf, int(self.pos.x), int(self.pos.y), int(self.size), self.color)
 
         else:
             pygame.draw.circle(surf, self.color, self.pos, self.size, 1 - self.filled)
@@ -425,10 +435,7 @@ class PolygonParticle(DrawnParticle):
     def draw(self, surf):
         points = [
             self.pos
-            + polar(
-                self.size,
-                self.inner_rotation + i * 360 / self.vertices * self.vertex_step,
-            )
+            + polar(self.size, self.inner_rotation + i * 360 / self.vertices * self.vertex_step,)
             for i in range(self.vertices)
         ]
 
@@ -499,9 +506,7 @@ class ImageParticle(Particle):
         self.need_redraw = False
         w, h = self.original_surf.get_size()
         ratio = self.size / min(w, h)
-        surf = pygame.transform.scale(
-            self.original_surf, vec2int((w * ratio, h * ratio))
-        )
+        surf = pygame.transform.scale(self.original_surf, vec2int((w * ratio, h * ratio)))
 
         surf.set_alpha(self.alpha)
         return surf
@@ -603,12 +608,9 @@ def main():
 
     particles.fountains = [
         ParticleFountain(
-            lambda: PolygonParticle(5, "#00a590", 2).builder().apply(base(50)).build(),
-            1,
+            lambda: PolygonParticle(5, "#00a590", 2).builder().apply(base(50)).build(), 1,
         ),
-        ParticleFountain(
-            lambda: CircleParticle("#c09540").builder().apply(base(150)).build(), 1,
-        ),
+        ParticleFountain(lambda: CircleParticle("#c09540").builder().apply(base(150)).build(), 1,),
         ParticleFountain(
             lambda: PolygonParticle(6, "#a400a5").builder().apply(base(250)).build(), 1,
         ),
