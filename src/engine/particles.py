@@ -342,8 +342,8 @@ class DrawnParticle(Particle):
     class Builder(Particle.Builder["DrawnParticle"]):
         def hsv(self, hue, saturation=1.0, value=1.0):
             hue = round(hue) % 360
-            saturation = clamp(0, 100, round(100 * saturation))
-            value = clamp(0, 100, round(100 * value))
+            saturation = clamp(round(100 * saturation), 0, 100)
+            value = clamp(round(100 * value), 0, 100)
             self._p.color.hsva = (hue, saturation, value, 100)
             return self
 

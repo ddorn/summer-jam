@@ -161,7 +161,7 @@ class SpriteObject(Object):
         pos,
         image: pygame.Surface,
         offset=(0, 0),
-        size: Optional[Tuple[int, int]]=None,
+        size: Optional[Tuple[int, int]] = None,
         vel=(0, 0),
         rotation=0,
     ):
