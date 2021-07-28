@@ -1,8 +1,11 @@
+<<<<<<< HEAD
 from collections import defaultdict
 from typing import Set
 
 from pygame import Vector2
 
+=======
+>>>>>>> 7175d07 (add particles, right sprite for enemy, clamp player in screen)
 from engine import *
 
 __all__ = ["Player", "Ennemy", "Bullet", "EnemyBlockAI"]
@@ -33,7 +36,9 @@ class Player(Object):
             self.state.add(Bullet(self.pos))
 
     def create_inputs(self):
-        motion = Axis([pygame.K_a, pygame.K_LEFT], [pygame.K_d, pygame.K_RIGHT]).always_call(self.move)
+        motion = Axis([pygame.K_a, pygame.K_LEFT], [pygame.K_d, pygame.K_RIGHT]).always_call(
+            self.move
+        )
         fire = Button(pygame.K_SPACE).on_press(self.fire)
         return {
             "player motion": motion,
@@ -72,12 +77,16 @@ class Bullet(Object):
 class Ennemy(SpriteObject):
     EDGE = 30
     SPEED = 1
+<<<<<<< HEAD
+=======
     ROW_HEIGHT = 45
+>>>>>>> 7175d07 (add particles, right sprite for enemy, clamp player in screen)
     SCALE = 2
 
     IMAGE = Assets.Images.enemies(0)
     IMAGE.set_palette_at(1, (255, 255, 255))
     IMAGE = auto_crop(IMAGE)
+<<<<<<< HEAD
 
     def __init__(self, pos, ai):
         super().__init__(pos, self.IMAGE, vel=(self.SPEED, 0))
@@ -177,6 +186,11 @@ class EnemyBlockAI(AI):
 class SnakeAI(AI):
     def __init__(self):
         super().__init__()
+=======
+
+    def __init__(self, pos):
+        super().__init__(pos, self.IMAGE, vel=(self.SPEED, 0))
+>>>>>>> 7175d07 (add particles, right sprite for enemy, clamp player in screen)
         self.goals = list(self.checkpoints())
         self.current_goals = defaultdict(int)
 
@@ -205,3 +219,23 @@ class SnakeAI(AI):
             yield self.EDGE, y + self.ROW_HEIGHT
             y += 2 * self.ROW_HEIGHT
 
+<<<<<<< HEAD
+    def add(self, enemy):
+        super().add(enemy)
+=======
+    def logic(self):
+        if self.goals and self.pos.distance_to(self.goals[0]) < self.SPEED:
+            self.goals.pop(0)
+
+        if not self.goals:
+            self.alive = False
+            return
+
+        goal = self.goals[0]
+        self.vel = (goal - self.pos).normalize() * (self.SPEED)
+
+        super().logic()
+
+    def on_death(self):
+        self.state.particles.add_explosion(self.center,)
+>>>>>>> 7175d07 (add particles, right sprite for enemy, clamp player in screen)
