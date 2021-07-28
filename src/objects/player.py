@@ -1,6 +1,3 @@
-import pygame
-from pygame import Vector2
-
 from engine import *
 
 __all__ = ["Player", "Ennemy", "Bullet"]
@@ -9,51 +6,61 @@ __all__ = ["Player", "Ennemy", "Bullet"]
 class Player(Object):
     VELOCITY = 4
     SPAWN = W / 2, H - 10
-    FIRE_COOLDOWN = 8
+    FIRE_COOLDOWN = 12
+
     def __init__(self):
         super().__init__(self.SPAWN, (20, 12))
-        self.fire_cooldown = self.FIRE_COOLDOWN
+        self.fire_cooldown = Cooldown(self.FIRE_COOLDOWN)
 
     def logic(self):
         super().logic()
-        self.fire_cooldown -= 1
+        self.fire_cooldown.tick()
 
     def draw(self, gfx: "GFX"):
         gfx.rect(*self.pos, *self.size, "orange", anchor="center")
 
     def move(self, axis):
         self.pos.x += axis.value * self.VELOCITY
+        self.pos.x = clamp(self.pos.x, self.size.x / 2, W - self.size.x / 2)
 
-    def fire(self, button):
-        if button.pressed and self.fire_cooldown < 0:
+    def fire(self, _button):
+        if self.fire_cooldown.fire():
             self.state.add(Bullet(self.pos))
-            self.fire_cooldown = self.FIRE_COOLDOWN
 
     def create_inputs(self):
-        motion = Axis([pygame.K_a, pygame.K_LEFT], [pygame.K_d, pygame.K_RIGHT]).always_call(self.move)
-        fire = Button(pygame.K_SPACE).always_call(self.fire)
+        motion = Axis([pygame.K_a, pygame.K_LEFT], [pygame.K_d, pygame.K_RIGHT]).always_call(
+            self.move
+        )
+        fire = Button(pygame.K_SPACE).on_press(self.fire)
         return {
             "player motion": motion,
             "fire": fire,
         }
 
+
 class Bullet(Object):
     VELOCITY = 7
 
-    def __init__(self, pos):
+    def __init__(self, pos, friend=True):
         super().__init__(pos, vel=(0, -self.VELOCITY))
+        self.friend = friend
 
     def logic(self):
         super().logic()
         if not SCREEN.inflate(10, 10).collidepoint(self.pos):
             self.alive = False
 
-        for enemy in self.state.get_all(Ennemy):
-            if enemy.rect.collidepoint(self.pos):
-                enemy.alive = False
-                self.alive = False
-                return
+        targets = self.state.get_all(Ennemy) if self.friend else [self.state.player]
 
+        for target in targets:
+            if target.rect.collidepoint(self.pos):
+                target.alive = False
+                self.alive = False
+
+                if self.friend:
+                    # Todo: increase score
+                    pass
+                return
 
     def draw(self, gfx: "GFX"):
         gfx.rect(*self.pos, 5, 5, "white", anchor="center")
@@ -61,11 +68,16 @@ class Bullet(Object):
 
 class Ennemy(SpriteObject):
     EDGE = 30
-    SPEED = 3
+    SPEED = 1
     ROW_HEIGHT = 45
+    SCALE = 2
+
+    IMAGE = Assets.Images.enemies(0)
+    IMAGE.set_palette_at(1, (255, 255, 255))
+    IMAGE = auto_crop(IMAGE)
 
     def __init__(self, pos):
-        super().__init__(pos, scale(image("enemy"), 0.2), vel=(self.SPEED, 0))
+        super().__init__(pos, self.IMAGE, vel=(self.SPEED, 0))
         self.goals = list(self.checkpoints())
 
     def checkpoints(self):
@@ -89,3 +101,6 @@ class Ennemy(SpriteObject):
         self.vel = (goal - self.pos).normalize() * (self.SPEED)
 
         super().logic()
+
+    def on_death(self):
+        self.state.particles.add_explosion(self.center,)

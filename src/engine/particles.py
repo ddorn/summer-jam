@@ -1,7 +1,7 @@
 from math import cos, pi, sin
 from random import choice, gauss, randint, random, uniform
 from time import time
-from typing import Callable, Generic, Tuple, TypeVar, Union
+from typing import Callable, Generic, Optional, Tuple, TypeVar, Union
 
 import pygame
 import pygame.gfxdraw as gfx
@@ -108,6 +108,22 @@ class ParticleSystem(set):
             .anim_fade()
             .build()
         )
+
+    def add_explosion(self, pos, intensity=100, qte: Optional[float]=None, color="white"):
+        if qte is None:
+            qte = intensity / 2
+
+        for i in rrange(qte):
+            self.add(
+                SquareParticle(color)
+                .builder()
+                .at(pos, uniform(0, 360))
+                .velocity(gauss(intensity / 30, intensity / 100))
+                .sized(2)
+                .living(intensity // 4)
+                .anim_fade()
+                .build()
+            )
 
 
 class ParticleFountain:

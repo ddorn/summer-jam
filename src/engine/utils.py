@@ -232,12 +232,7 @@ def overlay(image: pygame.Surface, color, alpha=255):
 
 
 def random_in_rect_and_avoid(
-    rect: pygame.Rect,
-    avoid_positions,
-    avoid_radius,
-    max_trials=1000,
-    force_y=None,
-    default=None,
+    rect: pygame.Rect, avoid_positions, avoid_radius, max_trials=1000, force_y=None, default=None,
 ):
     for trial in range(max_trials):
         if force_y is not None:
@@ -266,3 +261,32 @@ def random_rainbow_color(saturation=100, value=100):
     color = pygame.Color(0)
     color.hsva = hue, saturation, value, 100
     return color
+
+
+class Cooldown:
+    def __init__(self, duration: float):
+        self.auto_lock = duration
+        self.locked_for = 0
+
+    def lock_for(self, duration):
+        """Lock the cooldown for duration. If already locked, increases the duration of the lock."""
+        self.locked_for = min(duration, self.locked_for + duration)
+
+    def tick(self, fire=False, override_duration: float = None) -> bool:
+        """Advance the cooldown and when fire is True, return whether the cooldown is over.
+
+        If the cooldown is over and fire is True, restart the cooldown.
+        """
+
+        self.locked_for -= 1
+        if fire and self.locked_for <= 0:
+            self.locked_for = override_duration or self.auto_lock
+            return True
+        return False
+
+    def fire(self) -> bool:
+        """Whether the cooldown is over. Reset the cooldown if needed."""
+        if self.locked_for <= 0:
+            self.locked_for = self.auto_lock
+            return True
+        return False

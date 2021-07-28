@@ -1,5 +1,8 @@
 import json
 from functools import lru_cache
+from typing import Optional
+
+import pygame
 
 from .constants import *
 from .settings import settings
@@ -120,6 +123,54 @@ def tilemap(name, x, y, tile_size=32):
     x %= tiles_in_a_row
 
     return img.subsurface((x * tile_size, y * tile_size, tile_size, tile_size))
+
+
+class Image:
+    def __init__(self, name):
+        self.name = name
+        self.surface: Optional[pygame.Surface] = None
+
+    def load(self):
+        """Load the image from disk if needed."""
+        if self.surface is None:
+            self.surface = image(self.name)
+
+    def __call__(self, *args, **kwargs):
+        self.load()
+        return self.surface
+
+
+class SpriteSheet(Image):
+    def __init__(self, name, tile_size):
+        super().__init__(name)
+        self.tile_size = tile_size
+
+    def __call__(self, col, row=0):
+        """Return the image at the (col, row) position on the spritesheet"""
+
+        self.load()
+
+        # Wrap column when bigger than line length
+        tiles_in_a_row = self.surface.get_width() // self.tile_size
+        row += col // tiles_in_a_row
+        col %= tiles_in_a_row
+
+        return self.surface.subsurface((col * self.tile_size, col * self.tile_size, self.tile_size, self.tile_size))
+
+
+class Assets:
+    class Images:
+        enemies = SpriteSheet("enemies", 16)
+        player = Image("player")
+
+    class Sounds:
+        pass
+
+    class Transform:
+        pass
+
+    def __init__(self):
+        raise RuntimeError("The Assets class is just a namespace and not meant to be instanciated.")
 
 
 # We can do better...

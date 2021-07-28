@@ -5,6 +5,7 @@ import pygame
 GAME_NAME = "XXX"
 SIZE = (640, 360)
 W, H = SIZE
+USE_DELTA_TIME = False
 
 SCREEN = pygame.Rect(0, 0, W, H)
 
