@@ -217,7 +217,7 @@ class Card(SpriteObject):
 
     def draw(self, gfx: "GFX"):
         super().draw(gfx)
-        # gfx.rect(*self._rect, (0, 0, 0), 1)
+        gfx.rect(*self._rect, (0, 0, 0), 1)
 
     def use(self):
         print("Used")

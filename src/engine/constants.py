@@ -14,7 +14,7 @@ YELLOW = (255, 224, 145)
 RED = (221, 55, 69)
 ORANGE = (254, 174, 52)
 WHITE = (192, 203, 220)
-GREEN = (99, 199, 77)
+GREEN = (166, 226, 46)
 
 ASSETS_DIR = Path(__file__).parent.parent / "assets"
 IMAGES = ASSETS_DIR / "images"

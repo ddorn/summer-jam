@@ -18,7 +18,7 @@ class Player(Object):
         self.fire_cooldown.tick()
 
     def draw(self, gfx: "GFX"):
-        gfx.rect(*self.rect, "orange")
+        gfx.rect(*self.rect, GREEN)
 
     def move(self, axis):
         self.pos.x += axis.value * self.VELOCITY
@@ -26,10 +26,12 @@ class Player(Object):
 
     def fire(self, _button):
         if self.fire_cooldown.fire():
-            self.state.add(Bullet(self.pos))
+            self.state.add(Bullet(self.center))
 
     def create_inputs(self):
-        motion = Axis([pygame.K_a, pygame.K_LEFT], [pygame.K_d, pygame.K_RIGHT]).always_call(self.move)
+        motion = Axis([pygame.K_a, pygame.K_LEFT], [pygame.K_d, pygame.K_RIGHT]).always_call(
+            self.move
+        )
         fire = Button(pygame.K_SPACE).on_press(self.fire)
         return {
             "player motion": motion,
@@ -46,10 +48,11 @@ class Player(Object):
 
 class Bullet(Object):
     VELOCITY = 7
+    SIZE = (2, 5)
 
     def __init__(self, pos, friend=True):
         direction = -self.VELOCITY if friend else self.VELOCITY / 2
-        super().__init__(pos, vel=(0, direction))
+        super().__init__(pos, self.SIZE, vel=(0, direction))
         self.friend = friend
 
     def logic(self):
@@ -60,7 +63,7 @@ class Bullet(Object):
         targets = self.state.get_all("Ennemy") if self.friend else [self.state.player]
 
         for target in targets:
-            if target.rect.collidepoint(self.pos):
+            if target.rect.colliderect(self.rect):
                 target.alive = False
                 self.alive = False
 
@@ -70,4 +73,5 @@ class Bullet(Object):
                 return
 
     def draw(self, gfx: "GFX"):
-        gfx.rect(*self.pos, 5, 5, "white", anchor="center")
+        color = "white" if self.friend else "red"
+        gfx.rect(*self.rect, color, anchor="center")

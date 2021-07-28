@@ -22,9 +22,7 @@ class Screen:
 
     def resize(self, new_size=None):
         self.window = pygame.display.set_mode(new_size or self.window_size, self.FLAGS)
-        self.window_size = (
-            self.window.get_size()
-        )  # We don't always get the size asked for.
+        self.window_size = self.window.get_size()  # We don't always get the size asked for.
         self.draw_surface = self.window
 
     def update_window(self):
@@ -80,34 +78,27 @@ class BlackBordersScreen(Screen):
     @property
     def scale(self):
         return min(
-            self.window_size[0] / self.design_size[0],
-            self.window_size[1] / self.design_size[1],
+            self.window_size[0] / self.design_size[0], self.window_size[1] / self.design_size[1],
         )
 
     def resize(self, new_size=None):
         self.window = pygame.display.set_mode(new_size or self.window_size, self.FLAGS)
         self.window.fill(self.border_color)
-        self.window_size = (
-            self.window.get_size()
-        )  # We don't always get the size asked for.
+        self.window_size = self.window.get_size()  # We don't always get the size asked for.
 
         scaled_draw_area = self.design_size * self.scale
         topleft = (pygame.Vector2(self.window_size) - scaled_draw_area) / 2
         self.scaled_draw_rect = pygame.Rect(topleft, scaled_draw_area)
 
-        print(self.scaled_draw_rect, self.window)
+        # print(self.scaled_draw_rect, self.window)
 
     def update_window(self):
         scaled_draw = self.window.subsurface(self.scaled_draw_rect)
-        pygame.transform.scale(
-            self.draw_surface, self.scaled_draw_rect.size, scaled_draw
-        )
+        pygame.transform.scale(self.draw_surface, self.scaled_draw_rect.size, scaled_draw)
 
     def fixup_mouse_input(self, event):
         # noinspection PyTypeChecker
-        event.pos = (
-            pygame.Vector2(event.pos) - self.scaled_draw_rect.topleft
-        ) // self.scale
+        event.pos = (pygame.Vector2(event.pos) - self.scaled_draw_rect.topleft) // self.scale
 
 
 class ExtendFieldOfViewScreen(Screen):
@@ -137,9 +128,7 @@ class ExtendFieldOfViewScreen(Screen):
 
     def resize(self, new_size=None):
         self.window = pygame.display.set_mode(new_size or self.window_size, self.FLAGS)
-        self.window_size = (
-            self.window.get_size()
-        )  # We don't always get the size asked for.
+        self.window_size = self.window.get_size()  # We don't always get the size asked for.
         self.window.fill("black")
 
         # We round the window_size to the nearest multiple
@@ -150,12 +139,8 @@ class ExtendFieldOfViewScreen(Screen):
 
     def update_window(self):
         scaled_draw = self.window.subsurface(self.scaled_draw_rect)
-        pygame.transform.scale(
-            self.draw_surface, self.scaled_draw_rect.size, scaled_draw
-        )
+        pygame.transform.scale(self.draw_surface, self.scaled_draw_rect.size, scaled_draw)
 
     def fixup_mouse_input(self, event):
         # noinspection PyTypeChecker
-        event.pos = (
-            pygame.Vector2(event.pos) - self.scaled_draw_rect.topleft
-        ) // self.scale
+        event.pos = (pygame.Vector2(event.pos) - self.scaled_draw_rect.topleft) // self.scale

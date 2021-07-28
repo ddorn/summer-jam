@@ -71,11 +71,7 @@ class App(StateMachine):
                 new = self.screen.draw_surface.get_size()
                 if old != new:
                     self.state.resize(old, new)
-            elif event.type in (
-                pygame.MOUSEMOTION,
-                pygame.MOUSEBUTTONDOWN,
-                pygame.MOUSEBUTTONUP,
-            ):
+            elif event.type in (pygame.MOUSEMOTION, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP,):
                 self.screen.fixup_mouse_input(event)
 
         self.state.handle_events(events)
