@@ -72,7 +72,6 @@ class Bullet(Object):
 class Ennemy(SpriteObject):
     EDGE = 30
     SPEED = 1
-    ROW_HEIGHT = 45
     SCALE = 2
 
     IMAGE = Assets.Images.enemies(0)
