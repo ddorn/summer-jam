@@ -189,10 +189,19 @@ class State(Scriptable):
 
         return object
 
-    def get_all(self, *type_):
+    def get_all(self, *types):
+        """Get all objects in the State with the given types.
+
+        Types can either be classes or class names."""
         for object in self.objects:
-            if isinstance(object, type_):
-                yield object
+            for t in types:
+                if isinstance(t, str):
+                    if any(c.__name__ == t for c in object.__class__.__mro__):
+                        yield object
+                        break
+                elif isinstance(object, t):
+                    yield object
+                    break
 
     def do_shake(self, frames):
         assert frames >= 0

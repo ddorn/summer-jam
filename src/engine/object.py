@@ -49,6 +49,10 @@ class Scriptable:
     def do_later(self, nb_of_frames):
         """Decorator to automatically call a function :nb_of_frames: later.
 
+        Warning: when used with objects, the script is canceled when
+        the object dies and is removed from the state. For a script
+        to outlive its object, it has to be registred on the state directly.
+
         Examples:
             Write "BOOOM" after 60 frames:
             >>> object = Scriptable()
