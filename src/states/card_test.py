@@ -17,7 +17,7 @@ class CardTestState(State):
         super().__init__()
 
         self.player = self.add(Player())
-        self.deck = self.add(Deck(self))
+        self.deck = self.add(Deck())
         self.spawn()
 
     def spawn(self):
@@ -25,7 +25,7 @@ class CardTestState(State):
             image = pygame.Surface((60, 100), pygame.SRCALPHA)
             image.fill(random_rainbow_color(60))
             pygame.draw.circle(image, "white", (30, 50), 15, 4)
-            self.deck.add_card(Card(image))
+            self.deck.add_card(Card(image, f=print))
 
         ai = EnemyBlockAI()
         for e in ai.spawn():

@@ -1,5 +1,5 @@
-from typing import Dict
 from random import gauss
+from typing import Dict
 import pygame
 
 from src.engine import *
@@ -45,6 +45,7 @@ class Transition:
         self.frame_counter = -1  # Current frame
 
         self.frames = frame_count  # length of transition
+        self.modifier = 1
 
         self.vel = None
         if start_pos is None:
@@ -64,22 +65,25 @@ class Transition:
                 start_size = obj.size
             self.size = (end_size - start_size) / frame_count
 
-    def start(self):
+    def start(self, reverse=False):
+        if self.running:
+            return
         self.running = True
         self.frame_counter = self.frames
+        self.modifier = -1 if reverse else 1
 
     def logic(self):
         if not self.running:
             return
 
         if self.vel is not None:
-            self.obj.pos += self.vel
+            self.obj.pos += self.vel * self.modifier
 
         if self.rotation is not None:
-            self.obj.rotation += self.rotation
+            self.obj.rotation += self.rotation * self.modifier
 
         if self.size is not None:
-            self.obj.size += self.size
+            self.obj.size += self.size * self.modifier
 
         self.frame_counter -= 1
 
@@ -89,18 +93,17 @@ class Transition:
 
 class Card(SpriteObject):
     FRAME_COUNT = 20
-    SPACING = 50
+    SPACING = 55
     ROTATION = -4
 
-    def __init__(
-        self, image, pos=(0, 0),
-    ):
-        size = image.get_rect()
-        super().__init__(pos, image, offset=(0, 0), size=size.size, vel=(0, 0), rotation=0)
+    def __init__(self, image, pos=(0, 0), f=None):
+        size = image.get_rect().size
+        super().__init__(pos, image, offset=(0, 0), size=size, vel=(0, 0), rotation=0)
         self.transitions: Dict[str, Transition] = {}
         self.shown = False
         self.hovered = False
         self.used = False
+        self.func = f
 
     def create_transitions(self, i):
         card_num = 5
@@ -140,18 +143,7 @@ class Card(SpriteObject):
             ),
         )
         self.add_transition(
-            "hide",
-            Transition(
-                self,
-                self.FRAME_COUNT,
-                start_pos=pos1,
-                end_pos=pos2,
-                start_rotation=r,
-                end_rotation=0,
-            ),
-        )
-        self.add_transition(
-            "hover_on",
+            "hover",
             Transition(
                 self,
                 self.FRAME_COUNT // 2,
@@ -162,43 +154,46 @@ class Card(SpriteObject):
             ),
         )
         self.add_transition(
-            "hover_off",
+            "use",
             Transition(
                 self,
-                self.FRAME_COUNT // 2,
+                self.FRAME_COUNT,
                 start_pos=pos3,
-                end_pos=pos2,
-                start_size=size2,
-                end_size=size1,
+                end_pos=pos4,
             ),
-        )
-        self.add_transition(
-            "use", Transition(self, self.FRAME_COUNT, start_pos=pos3, end_pos=pos4,),
         )
 
     def add_transition(self, name: str, transition: Transition):
         self.transitions[name] = transition
 
-    def start_transition(self, name: str):
-        self.transitions[name].start()
+    def start_transition(self, name: str, reverse=False):
+        self.transitions[name].start(reverse)
 
     def logic(self):
         super().logic()
-        self._rect = pygame.Rect(0, 0, *self.size)
-        self._rect.center = self.sprite_center
-        if not self.used:
-            if self._rect.collidepoint(pygame.mouse.get_pos()) and not self.hovered:
-                self.start_transition("hover_on")
+        rect = pygame.Rect(0, 0, *self.size)
+        rect.center = self.sprite_center
+        self.state.debug.rectangle(rect, (0, 0, 0))
+
+        if not self.used and not self.transitions["show"].running:
+            colliding = rect.collidepoint(pygame.mouse.get_pos())
+
+            if colliding and not self.hovered and not self.transitions["hover"].running:
+                self.start_transition("hover")
                 self.hovered = True
-            elif not self._rect.collidepoint(pygame.mouse.get_pos()) and self.hovered:
-                self.start_transition("hover_off")
+
+            elif (
+                not colliding and self.hovered and not self.transitions["hover"].running
+            ):
+                self.start_transition("hover", reverse=True)
                 self.hovered = False
 
             if self.hovered and pygame.mouse.get_pressed(3)[0]:
                 self.use()
-        else:
+
+        elif self.used:
             if not self.transitions["use"].running:
-                for _ in range(int(gauss(15, 5))):
+                for _ in particles.rrange(gauss(15, 5)):
                     self.state.particles.add(
                         CircleParticle()
                         .builder()
@@ -215,23 +210,16 @@ class Card(SpriteObject):
         for transition in self.transitions.values():
             transition.logic()
 
-    def draw(self, gfx: "GFX"):
-        super().draw(gfx)
-        gfx.rect(*self._rect, (0, 0, 0), 1)
-
     def use(self):
-        print("Used")
+        if self.func:
+            self.func(self.state)
+
         self.start_transition("use")
         self.used = True
 
-    def click(self, event):
-        if self._rect.collidepoint(event.pos):
-            self.use()
-            return True
-
 
 class Deck(Object):
-    def __init__(self, state):
+    def __init__(self):
         super().__init__((0, 0))
         self.cards = []
 
@@ -253,7 +241,7 @@ class Deck(Object):
     def hide_cards(self, _):
         for card in self.cards:
             if card.shown:
-                card.start_transition("hide")
+                card.start_transition("show", reverse=True)
                 card.shown = False
 
     def create_inputs(self):
