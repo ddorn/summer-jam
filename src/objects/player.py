@@ -7,7 +7,7 @@ __all__ = ["Player", "Bullet"]
 class Player(Object):
     VELOCITY = 4
     SPAWN = W / 2, H - 20
-    FIRE_COOLDOWN = 12
+    FIRE_COOLDOWN = 24
 
     def __init__(self):
         super().__init__(self.SPAWN, (20, 12))
@@ -29,10 +29,15 @@ class Player(Object):
             self.state.add(Bullet(self.center))
 
     def create_inputs(self):
-        motion = Axis([pygame.K_a, pygame.K_LEFT], [pygame.K_d, pygame.K_RIGHT]).always_call(
-            self.move
-        )
-        fire = Button(pygame.K_SPACE).on_press(self.fire)
+        motion = Axis(
+            [pygame.K_a, pygame.K_LEFT],
+            [pygame.K_d, pygame.K_RIGHT],
+            JoyAxis(JOY_HORIZ_LEFT),
+        ).always_call(self.move)
+
+        fire = Button(
+            pygame.K_SPACE, MouseButtonPress(1), JoyButton(0)
+        ).on_press_repeated(self.fire, 0)
         return {
             "player motion": motion,
             "fire": fire,

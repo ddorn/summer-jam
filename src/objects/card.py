@@ -6,7 +6,7 @@ from src.engine import *
 
 # TODO: add docstrings to this file
 
-__all__ = ["Transition", "Card", "Deck"]
+__all__ = ["Transition", "Card", "Deck", "change_fire_rate"]
 
 
 class Transition:
@@ -93,7 +93,7 @@ class Transition:
 
 class Card(SpriteObject):
     FRAME_COUNT = 20
-    SPACING = 55
+    SPACING = 85
     ROTATION = -4
 
     def __init__(self, image, pos=(0, 0), f=None):
@@ -104,6 +104,7 @@ class Card(SpriteObject):
         self.hovered = False
         self.used = False
         self.func = f
+        self.using_controller = False
 
     def create_transitions(self, i):
         card_num = 5
@@ -126,7 +127,7 @@ class Card(SpriteObject):
         # Does not actually scale sprite size, just hitbox
         size1 = pygame.Vector2(self.size)
         size2 = pygame.Vector2(self.size)
-        size2.x *= 1 + abs(r) / 12
+        size2.x *= 1 + abs(r) / 10
         size2.y *= 1.1
 
         self.pos = pos1 if self.shown else pos2
@@ -146,7 +147,7 @@ class Card(SpriteObject):
             "hover",
             Transition(
                 self,
-                self.FRAME_COUNT // 2,
+                self.FRAME_COUNT // 4,
                 start_pos=pos2,
                 end_pos=pos3,
                 start_size=size1,
@@ -175,18 +176,25 @@ class Card(SpriteObject):
         rect.center = self.sprite_center
         self.state.debug.rectangle(rect, (0, 0, 0))
 
-        if not self.used and not self.transitions["show"].running:
+        if pygame.mouse.get_rel() != (0, 0):
+            self.using_controller = False
+            for card in self.state.deck.cards:
+                card.using_controller = False
+
+        if (
+            not self.using_controller
+            and not self.used
+            and not self.transitions["show"].running
+        ):
             colliding = rect.collidepoint(pygame.mouse.get_pos())
 
             if colliding and not self.hovered and not self.transitions["hover"].running:
-                self.start_transition("hover")
-                self.hovered = True
+                self.hover(True)
 
             elif (
                 not colliding and self.hovered and not self.transitions["hover"].running
             ):
-                self.start_transition("hover", reverse=True)
-                self.hovered = False
+                self.hover(False)
 
             if self.hovered and pygame.mouse.get_pressed(3)[0]:
                 self.use()
@@ -217,38 +225,74 @@ class Card(SpriteObject):
         self.start_transition("use")
         self.used = True
 
+    def hover(self, on=True, controller=False):
+        if self.transitions["hover"].running:
+            return
+        self.start_transition("hover", reverse=not on)
+        self.hovered = on
+        self.using_controller = controller
+
 
 class Deck(Object):
     def __init__(self):
         super().__init__((0, 0))
         self.cards = []
+        self.selected = 0
 
     def add_card(self, *cards):
+        self.selected = 0
         self.cards.extend(cards)
         for card in cards:
             self.state.add(card)
 
         for i, card in enumerate(self.cards):
             card.create_transitions(i)
-            print(i)
 
-    def show_cards(self, _):
-        for card in self.cards:
-            if not card.shown:
-                card.start_transition("show")
-                card.shown = True
-
-    def hide_cards(self, _):
+    def toggle_cards(self, _):
         for card in self.cards:
             if card.shown:
                 card.start_transition("show", reverse=True)
                 card.shown = False
+            else:
+                card.start_transition("show")
+                card.shown = True
+
+    def change_selected_r(self, _):
+        if self.cards[self.selected].hovered:
+            self.cards[self.selected].hover(False, True)
+        self.selected = (self.selected + 1) % len(self.cards)
+        self.cards[self.selected].hover(True, True)
+
+    def change_selected_l(self, _):
+        if self.cards[self.selected].hovered:
+            self.cards[self.selected].hover(False, True)
+        self.selected = (self.selected - 1) % len(self.cards)
+        self.cards[self.selected].hover(True, True)
 
     def create_inputs(self):
-        hide = Button(pygame.K_UP, pygame.K_w).on_press(self.hide_cards)
-        show = Button(pygame.K_DOWN, pygame.K_s).on_press(self.show_cards)
-
+        toggle = Button(MouseButtonPress(3), JoyButton(3)).on_press(self.toggle_cards)
+        change_select_l = Button(JoyHatButton(1, -1, use_ps4_buttons=True)).on_press(
+            self.change_selected_l
+        )
+        change_select_r = Button(JoyHatButton(1, 1, use_ps4_buttons=True)).on_press(
+            self.change_selected_r
+        )
         return {
-            "show cards": show,
-            "hide cards": hide,
+            "toggle cards": toggle,
+            "change right": change_select_r,
+            "change left": change_select_l,
         }
+
+    def logic(self):
+        super().logic()
+        for i, card in enumerate(self.cards):
+            if not card.alive:
+                del self.cards[i]
+
+
+def change_fire_rate(state):
+    state.player.fire_cooldown.auto_lock = 18
+
+    @state.do_later(300)
+    def change_back():
+        state.player.fire_cooldown.auto_lock = 24

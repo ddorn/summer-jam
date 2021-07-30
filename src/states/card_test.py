@@ -12,6 +12,7 @@ class CardTestState(State):
         0x9463AA,
         0x3C926E,
     ]
+    FPS = 60
 
     def __init__(self):
         super().__init__()
@@ -22,10 +23,10 @@ class CardTestState(State):
 
     def spawn(self):
         for _ in range(5):
-            image = pygame.Surface((60, 100), pygame.SRCALPHA)
+            image = pygame.Surface((80, 120), pygame.SRCALPHA)
             image.fill(random_rainbow_color(60))
-            pygame.draw.circle(image, "white", (30, 50), 15, 4)
-            self.deck.add_card(Card(image, f=print))
+            pygame.draw.circle(image, "white", (40, 90), 15, 4)
+            self.deck.add_card(Card(image, f=change_fire_rate))
 
         ai = EnemyBlockAI()
         for e in ai.spawn():
