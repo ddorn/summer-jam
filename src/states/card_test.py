@@ -24,8 +24,13 @@ class CardTestState(State):
     def spawn(self):
         for _ in range(5):
             image = pygame.Surface((80, 120), pygame.SRCALPHA)
-            image.fill(random_rainbow_color(60))
-            pygame.draw.circle(image, "white", (40, 90), 15, 4)
+            image.fill(random_rainbow_color(80, 40))
+            image.blit(
+                wrapped_text(
+                    "Increase fire rate for 10 seconds", 10, (255, 255, 255), 70
+                ),
+                (5, 40),
+            )
             self.deck.add_card(Card(image, f=change_fire_rate))
 
         ai = EnemyBlockAI()

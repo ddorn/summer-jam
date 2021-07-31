@@ -30,9 +30,9 @@ sys.path.append(str((Path(__file__).parent / "src").absolute()))
 
 # It is important not to import from SRC
 from states.game import GameState
-from states.card_test import CardTestState
+from states.menu import MenuState
 from engine import SIZE, App, IntegerScaleScreen
 
 if __name__ == "__main__":
     # App(GameState, IntegerScaleScreen(SIZE)).run()
-    App(CardTestState, IntegerScaleScreen(SIZE)).run()
+    App(MenuState, IntegerScaleScreen(SIZE)).run()

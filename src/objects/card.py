@@ -94,7 +94,6 @@ class Transition:
 class Card(SpriteObject):
     FRAME_COUNT = 20
     SPACING = 85
-    ROTATION = -4
 
     def __init__(self, image, pos=(0, 0), f=None):
         size = image.get_rect().size
@@ -113,34 +112,28 @@ class Card(SpriteObject):
             + (i * self.SPACING)
             - (self.size[0] - self.SPACING) / 2
         )
-        if card_num % 2 == 0:
-            r = (card_num / 2 - (i + 0.5)) * self.ROTATION
-        else:
-            r = (card_num // 2 - i) * self.ROTATION
 
-        pos1 = pygame.Vector2(x, H * -0.1)
-        pos2 = pygame.Vector2(W // 2 - (self.size[0] // 2), H * -0.4)
+        pos1 = pygame.Vector2(W // 2 - (self.size[0] // 2), H * -0.4)
+        pos2 = pygame.Vector2(x, H * -0.15)
 
-        pos3 = pos2 + (pos1 - pos2) / 6
-        pos4 = pos2 + (pos1 - pos2) / 1.4
+        pos3 = pygame.Vector2(x, 10)
+        pos4 = pygame.Vector2(SCREEN.center) - self.size // 2
 
         # Does not actually scale sprite size, just hitbox
         size1 = pygame.Vector2(self.size)
         size2 = pygame.Vector2(self.size)
-        size2.x *= 1 + abs(r) / 10
-        size2.y *= 1.1
+        size2.y *= 1.2
+        size2.x *= 1.14
 
-        self.pos = pos1 if self.shown else pos2
+        self.pos = pos2 if self.shown else pos1
         self.Z = card_num - i
         self.add_transition(
             "show",
             Transition(
                 self,
                 self.FRAME_COUNT,
-                start_pos=pos2,
-                end_pos=pos1,
-                start_rotation=0,
-                end_rotation=r,
+                start_pos=pos1,
+                end_pos=pos2,
             ),
         )
         self.add_transition(
