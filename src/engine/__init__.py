@@ -1,5 +1,6 @@
 from .app import *
 from .assets import *
+from .common_objects import *
 from .constants import *
 from .debug import *
 from .gfx import *

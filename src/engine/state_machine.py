@@ -148,9 +148,10 @@ class State(Scriptable):
             for obj in self.objects:
                 if z == obj.Z:
                     obj.draw(gfx)
-                if z >= 0 and not did_draw_particles:
-                    self.particles.draw(gfx.surf)
-                    did_draw_particles = True
+            # We draw particles after the 0-th layer.
+            if z >= 0 and not did_draw_particles:
+                self.particles.draw(gfx.surf)
+                did_draw_particles = True
 
         if not did_draw_particles:
             self.particles.draw(gfx.surf)

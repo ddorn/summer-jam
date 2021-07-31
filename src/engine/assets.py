@@ -52,7 +52,7 @@ def scale(image, factor):
 
 @lru_cache()
 def font(size: int, name: str = None):
-    name = name or "Wellbutrin"
+    name = name or BIG_FONT
     file = FONTS / (name + ".ttf")
     return pygame.font.Font(file, size)
 

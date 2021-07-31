@@ -4,21 +4,31 @@ import states
 __all__ = ["Player", "Bullet"]
 
 
-class Player(Object):
+class Player(Entity):
     VELOCITY = 4
     SPAWN = W / 2, H - 20
     FIRE_COOLDOWN = 24
+    INITIAL_LIFE = 1000
+    SIZE = (20, 12)
+    FIRE_DAMAGE = 250
 
     def __init__(self):
-        super().__init__(self.SPAWN, (20, 12))
+        img = pygame.Surface(self.SIZE)
+        img.fill(GREEN)
+        super().__init__(self.SPAWN, img, size=self.SIZE)
         self.fire_cooldown = Cooldown(self.FIRE_COOLDOWN)
+        self.health_bar = HealthBar((0, 0, 30, 1), RED, self)
+        self.fire_power = self.FIRE_DAMAGE
 
     def logic(self):
         super().logic()
         self.fire_cooldown.tick()
+        self.health_bar.logic()
+        self.health_bar.center = self.center + (0, self.size.y / 2 + 6)
 
     def draw(self, gfx: "GFX"):
-        gfx.rect(*self.rect, GREEN)
+        super(Player, self).draw(gfx)
+        self.health_bar.draw(gfx)
 
     def move(self, axis):
         self.pos.x += axis.value * self.VELOCITY
@@ -55,10 +65,11 @@ class Bullet(Object):
     VELOCITY = 7
     SIZE = (2, 5)
 
-    def __init__(self, pos, friend=True):
+    def __init__(self, pos, damage=100, friend=True):
         direction = -self.VELOCITY if friend else self.VELOCITY / 2
         super().__init__(pos, self.SIZE, vel=(0, direction))
         self.friend = friend
+        self.damage = damage
 
     def logic(self):
         super().logic()
@@ -67,9 +78,10 @@ class Bullet(Object):
 
         targets = self.state.get_all("Ennemy") if self.friend else [self.state.player]
 
+        target: Entity
         for target in targets:
             if target.rect.colliderect(self.rect):
-                target.alive = False
+                target.damage(400)
                 self.alive = False
 
                 if self.friend:

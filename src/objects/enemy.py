@@ -8,24 +8,27 @@ from engine import *
 __all__ = ["Ennemy", "EnemyBlockAI", "SnakeAI"]
 
 
-class Ennemy(SpriteObject):
+class Ennemy(Entity):
     EDGE = 30
     SPEED = 1
     SCALE = 2
+    INITIAL_LIFE = 200
+
+    FIRE_DAMAGE = 100
 
     IMAGE = Assets.Images.enemies(0)
     IMAGE.set_palette_at(1, (255, 255, 255))
     IMAGE = auto_crop(IMAGE)
 
     def __init__(self, pos, ai):
-        super().__init__(pos, self.IMAGE, vel=(self.SPEED, 0))
+        super().__init__(pos, self.IMAGE, size=None, vel=(self.SPEED, 0))
         self.ai = ai
         ai.add(self)
 
     def fire(self):
         from objects import Bullet
 
-        self.state.add(Bullet(self.center, False))
+        self.state.add(Bullet(self.center, damage=self.FIRE_DAMAGE, friend=False))
 
     def logic(self):
         self.ai.logic(self)

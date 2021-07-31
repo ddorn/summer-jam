@@ -148,13 +148,7 @@ class Card(SpriteObject):
             ),
         )
         self.add_transition(
-            "use",
-            Transition(
-                self,
-                self.FRAME_COUNT // 2,
-                start_pos=pos3,
-                end_pos=pos4,
-            ),
+            "use", Transition(self, self.FRAME_COUNT, start_pos=pos3, end_pos=pos4,),
         )
 
     def add_transition(self, name: str, transition: Transition):
