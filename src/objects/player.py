@@ -30,8 +30,8 @@ class Player(Object):
 
     def create_inputs(self):
         motion = Axis(
-            [pygame.K_a, pygame.K_LEFT],
-            [pygame.K_d, pygame.K_RIGHT],
+            pygame.K_a,
+            pygame.K_d,
             JoyAxis(JOY_HORIZ_LEFT),
         ).always_call(self.move)
 

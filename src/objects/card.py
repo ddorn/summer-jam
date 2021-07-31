@@ -151,7 +151,7 @@ class Card(SpriteObject):
             "use",
             Transition(
                 self,
-                self.FRAME_COUNT,
+                self.FRAME_COUNT // 2,
                 start_pos=pos3,
                 end_pos=pos4,
             ),
@@ -212,6 +212,9 @@ class Card(SpriteObject):
             transition.logic()
 
     def use(self):
+        if not self.shown or not self.hovered:
+            return
+
         if self.func:
             self.func(self.state)
 
@@ -219,11 +222,19 @@ class Card(SpriteObject):
         self.used = True
 
     def hover(self, on=True, controller=False):
-        if self.transitions["hover"].running:
+        if not self.shown or self.transitions["hover"].running or on == self.hovered:
             return
+
         self.start_transition("hover", reverse=not on)
         self.hovered = on
         self.using_controller = controller
+
+    def show(self, on=True):
+        if self.hovered:
+            self.hover(False)
+
+        self.start_transition("show", reverse=not on)
+        self.shown = on
 
 
 class Deck(Object):
@@ -231,6 +242,7 @@ class Deck(Object):
         super().__init__((0, 0))
         self.cards = []
         self.selected = 0
+        self.shown = False
 
     def add_card(self, *cards):
         self.selected = 0
@@ -242,38 +254,59 @@ class Deck(Object):
             card.create_transitions(i)
 
     def toggle_cards(self, _):
+        self.shown = not self.shown
         for card in self.cards:
-            if card.shown:
-                card.start_transition("show", reverse=True)
-                card.shown = False
-            else:
-                card.start_transition("show")
-                card.shown = True
+            card.show(not card.shown)
 
     def change_selected_r(self, _):
+        if self.selected > len(self.cards):
+            return
+        if not self.shown:
+            return
+
         if self.cards[self.selected].hovered:
             self.cards[self.selected].hover(False, True)
         self.selected = (self.selected + 1) % len(self.cards)
         self.cards[self.selected].hover(True, True)
 
     def change_selected_l(self, _):
+        if self.selected >= len(self.cards):
+            return
+        if not self.shown:
+            return
         if self.cards[self.selected].hovered:
             self.cards[self.selected].hover(False, True)
         self.selected = (self.selected - 1) % len(self.cards)
         self.cards[self.selected].hover(True, True)
 
+    def use_card(self, _):
+        if self.selected > len(self.cards):
+            return
+        if not self.shown:
+            return
+
+        self.cards[self.selected].use()
+
+        @self.do_later(5)
+        def change():
+            self.change_selected_r(_)
+
     def create_inputs(self):
-        toggle = Button(MouseButtonPress(3), JoyButton(3)).on_press(self.toggle_cards)
-        change_select_l = Button(JoyHatButton(1, -1, use_ps4_buttons=True)).on_press(
-            self.change_selected_l
+        toggle = Button(MouseButtonPress(3), JoyButton(3), pygame.K_e).on_press(
+            self.toggle_cards
         )
-        change_select_r = Button(JoyHatButton(1, 1, use_ps4_buttons=True)).on_press(
-            self.change_selected_r
-        )
+        change_select_l = Button(
+            JoyHatButton(1, -1, use_ps4_buttons=True), pygame.K_LEFT
+        ).on_press(self.change_selected_l)
+        change_select_r = Button(
+            JoyHatButton(1, 1, use_ps4_buttons=True), pygame.K_RIGHT
+        ).on_press(self.change_selected_r)
+        use = Button(JoyButton(0), pygame.K_DOWN).on_press(self.use_card)
         return {
             "toggle cards": toggle,
             "change right": change_select_r,
             "change left": change_select_l,
+            "use card": use,
         }
 
     def logic(self):
