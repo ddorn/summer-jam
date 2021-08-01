@@ -209,6 +209,7 @@ class BaseCard(SpriteObject):
 
         self.start_transition("use")
         self.used = True
+        play("use_card")
 
     def hover(self, on=True, controller=False):
         if not self.shown or self.transitions["hover"].running or on == self.hovered:
@@ -328,6 +329,7 @@ class Deck(Object):
             pass
         self.selected = (self.selected + 1) % len(self.cards)
         self.cards[self.selected].hover(True, True)
+        play("select_card")
 
     def change_selected_l(self, _):
         if not self.cards or self.selected > len(self.cards) or not self.shown:
@@ -340,6 +342,7 @@ class Deck(Object):
             pass
         self.selected = (self.selected - 1) % len(self.cards)
         self.cards[self.selected].hover(True, True)
+        play("select_card")
 
     def use_card(self, _):
         if not self.cards or self.selected > len(self.cards) or not self.shown:

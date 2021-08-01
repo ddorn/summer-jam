@@ -111,6 +111,7 @@ class Bullet(Object):
         self.shooter = shooter
         self.friend = friend
         self.damage = damage
+        play("shoot")
 
     def logic(self):
         super().logic()
@@ -126,6 +127,7 @@ class Bullet(Object):
                 continue
 
             if target.rect.colliderect(self.rect):
+                play("hit")
                 target.damage(self.damage)
                 self.alive = False
 

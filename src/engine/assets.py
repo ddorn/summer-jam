@@ -11,6 +11,7 @@ from .utils import overlay
 
 @lru_cache()
 def sound(name):
+    print(name)
     file = SFX / (name + ".wav")
     sound = pygame.mixer.Sound(file)
 
