@@ -35,6 +35,9 @@ class Scriptable:
     def add_script(self, generator):
         self.scripts.add(generator)
 
+    def add_script_decorator(self, function):
+        self.scripts.add(function())
+
     def logic(self):
         """Call the next frame of each script."""
 

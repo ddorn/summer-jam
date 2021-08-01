@@ -51,10 +51,10 @@ def heal(state, data):
     state.player.heal(state.player.max_life * data / 100)
 
 
-@card("More bullets I", 200, 10, "Two bullets per shot for 5 seconds", "fire_rate", data=(2, 5))
-@card("More bullets II", 350, 15, "Three bullets per shot for 4 seconds", "fire_rate", data=(3, 4))
-@card("More bullets III", 500, 20, "Three bullets per shot for 8 seconds", "fire_rate", data=(3, 8))
-@card("More bullets IIII", 500, 200, "Permanently shoot one more bullet", "fire_rate", data=None)
+@card("Bullet up I", 200, 10, "Two bullets per shot for 5 seconds", "fire_rate", data=(2, 5))
+@card("Bullet up II", 350, 15, "Three bullets per shot for 4 seconds", "fire_rate", data=(3, 4))
+@card("Bullet up III", 500, 20, "Three bullets per shot for 8 seconds", "fire_rate", data=(3, 8))
+@card("Bullet up IIII", 500, 200, "Permanently shoot one more bullet", "fire_rate", data=None)
 def heal(state, data):
     if data is None:
         state.player.bullets += 1
@@ -64,3 +64,11 @@ def heal(state, data):
         @state.do_later(data[1] * SECOND)
         def change_back():
             state.player.bullets -= data[0] - 1
+
+
+@card("Push enemies I", 100, 10, "Push enemies back two row", "fire_rate", data=2)
+@card("Push enemies II", 200, 15, "Push enemies back three rows", "fire_rate", data=3)
+@card("Push enemies III", 400, 20, "Push enemies back five rows", "fire_rate", data=5)
+def heal(state, data):
+    for enemy in state.get_all("Ennemy"):
+        enemy.push_back(data)

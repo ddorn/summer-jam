@@ -36,6 +36,18 @@ class Ennemy(Entity):
         if randrange(500) == 42:
             self.fire()
 
+    def push_back(self, rows, duration=30):
+        @self.add_script_decorator
+        def script():
+            target = rows * self.ai.ROW_HEIGHT
+            k = 3
+            scale = exp_impluse_integral(k) * duration
+            print(scale)
+            for i in range(duration):
+                dy = exp_impulse(i / duration, k) / scale * target
+                self.pos.y -= dy
+                yield
+
     def on_death(self):
         self.state.particles.add_explosion(self.center,)
 

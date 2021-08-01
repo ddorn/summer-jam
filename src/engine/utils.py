@@ -191,6 +191,17 @@ def exp_impulse(x, k):
     return h * exp(1.0 - h)
 
 
+def exp_impluse_integral(k):
+    """
+    Value of the integral of exp_impulse between 0 and 1.
+
+    Can be used to determine the toal change in position
+    if exp_impulse is used to change a velocity.
+    """
+
+    return exp(1 - k) * (-k + exp(k) - 1) / k
+
+
 def auto_crop(surf: pygame.Surface):
     """Return the smallest subsurface of an image that contains all the visible pixels."""
 

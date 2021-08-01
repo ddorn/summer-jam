@@ -249,7 +249,7 @@ class InGameCard(BaseCard):
         r.midbottom = (w / 2, h - 18)
         img.blit(icon_surface, r)
 
-        t = text(name, 15, text_color)
+        t = wrapped_text(name, 15, text_color, w - 4)
         img.blit(t, t.get_rect(midtop=(40, 8)))
 
         # display cost
