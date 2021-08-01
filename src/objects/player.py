@@ -140,10 +140,11 @@ class Bullet(Object):
 
         if self.friend:
             for bullet in self.state.get_all(Bullet):
-                if not bullet.friend and self.rect.colliderect(bullet.rect):
+                if not bullet.friend and self.rect.colliderect(bullet.rect.inflate(2, 2)):
                     self.alive = False
                     bullet.alive = False
                     self.state.player.did_hit(bullet, self)
+                    self.state.particles.add_explosion(self.center, 30, 100)
 
     def draw(self, gfx: "GFX"):
         color = "white" if self.friend else "red"

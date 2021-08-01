@@ -280,8 +280,8 @@ class InGameCard(BaseCard):
             img.blit(star, r)
             r.x -= r.w + 1
             if i == 2:
-                r.right = w - 5
-                r.y -= 5
+                r.right = w - 14
+                r.y -= 6
 
         # t = auto_crop(text(str(level), font_size, text_color, SMALL_FONT))
 
