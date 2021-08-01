@@ -306,10 +306,13 @@ class Deck(Object):
 
     def change_selected_r(self, _):
         if not self.cards or self.selected > len(self.cards) or not self.shown:
-            return
+            return 
 
-        if self.cards[self.selected].hovered:
-            self.cards[self.selected].hover(False, True)
+        try:
+            if self.cards[self.selected].hovered:
+                self.cards[self.selected].hover(False, True)
+        except IndexError:
+            pass
         self.selected = (self.selected + 1) % len(self.cards)
         self.cards[self.selected].hover(True, True)
 
@@ -317,8 +320,11 @@ class Deck(Object):
         if not self.cards or self.selected > len(self.cards) or not self.shown:
             return
 
-        if self.cards[self.selected].hovered:
-            self.cards[self.selected].hover(False, True)
+        try:
+            if self.cards[self.selected].hovered:
+                self.cards[self.selected].hover(False, True)
+        except IndexError:
+            pass
         self.selected = (self.selected - 1) % len(self.cards)
         self.cards[self.selected].hover(True, True)
 
@@ -327,10 +333,12 @@ class Deck(Object):
             return
 
         self.cards[self.selected].use()
-
-        @self.do_later(5)
-        def change():
-            self.change_selected_r(_)
+        del self.cards[self.selected]
+        try:
+            self.selected = self.selected % len(self.cards)
+            self.cards[self.selected].hover(True, True)
+        except (ZeroDivisionError, IndexError):
+            pass  # self.cards is empty after usage
 
     def create_inputs(self):
         toggle = Button(MouseButtonPress(3), JoyButton(3), pygame.K_e).on_press(self.toggle_cards)
