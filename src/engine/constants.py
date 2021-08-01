@@ -48,4 +48,4 @@ JOY_RL = 2
 JOY_RT = 5
 
 # For sfx
-VOLUMES = {"shoot": 0.4, "denied": 0.8, "hit": 0.7}
+VOLUMES = {"shoot": 0.3, "denied": 0.8, "hit": 0.9}

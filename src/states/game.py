@@ -78,8 +78,8 @@ class GameState(State):
         self.level_ended = False
         self.player.go_next_level()
 
-        # for enemy in EnemyBlockAI().spawn_wave(self.wave):
-        #     self.add(enemy)
+        for enemy in EnemyBlockAI().spawn_wave(self.wave):
+            self.add(enemy)
 
     def script(self):
         while True:

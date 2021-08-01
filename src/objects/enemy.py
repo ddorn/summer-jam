@@ -8,6 +8,29 @@ from engine import *
 __all__ = ["Enemy", "EnemyBlockAI", "SnakeAI"]
 
 
+def damager(enemy):
+    enemy.FIRE_DAMAGE *= 4
+    enemy.color = (255, 0, 0)
+    enemy.POINTS = 30
+
+def tank(enemy):
+    enemy.INITIAL_LIFE *= 3
+    enemy.color = (182, 3, 252)
+    enemy.POINTS = 45
+    print(enemy.INITIAL_LIFE)
+
+def worthy(enemy):
+    enemy.color = (255, 215, 0)
+    enemy.POINTS = 100
+
+
+enemy_datas = (
+    lambda x: None,
+    tank,
+    damager,
+    worthy,
+)
+
 class Enemy(Entity):
     EDGE = 30
     SPEED = 0.5
@@ -18,14 +41,19 @@ class Enemy(Entity):
     FIRE_DAMAGE = 100
 
     IMAGE = Assets.Images.enemies(0)
-    IMAGE.set_palette_at(1, (255, 255, 255))
-    IMAGE = auto_crop(IMAGE)
 
-    def __init__(self, pos, ai):
+    def __init__(self, pos, ai, id=0):
+        self.color = (255, 255, 255)
+        enemy_datas[id](self)
+        self.IMAGE.set_palette_at(1, self.color)
+        self.IMAGE = auto_crop(self.IMAGE)
+
         super().__init__(pos, self.IMAGE, size=None, vel=(self.SPEED, 0))
         self.ai = ai
         ai.add(self)
         self.spawning = True
+
+
 
     def fire(self):
         from objects import Bullet
@@ -162,7 +190,7 @@ class EnemyBlockAI(AI):
             for col in range(cols):
                 x = chrange(col, (0, cols - 1), (self.EDGE * 3, W - self.EDGE * 3))
                 y = self.EDGE + row * self.ROW_HEIGHT
-                yield Enemy((x, y), self)
+                yield Enemy((x, y), self, randrange(0, len(enemy_datas)))
 
     def spawn_wave(self, wave):
         rows = 4 + wave // 3

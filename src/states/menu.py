@@ -29,8 +29,9 @@ class ControlsHelpState(State):
                 "Keyboard and mouse:",
                 (
                     "A/D to move",
-                    "Right click to show/hide cards",
-                    "Left click to shoot/select card",
+                    "E/Right click to show/hide cards",
+                    "Arrow keys/mouse to select card",
+                    "Left click/down arrow to shoot/use card",
                 ),
             ),
             (
