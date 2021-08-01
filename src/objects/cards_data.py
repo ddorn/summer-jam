@@ -114,3 +114,11 @@ def sacrifice(state, data):
     if state.player.life > data[0]:
         state.player.damage(data[0], True)
         state.player.coins += data[1]
+
+
+@card("Life up I", 100, 50, "Permanently gain 100HP", "fire_rate", data=100)
+@card("Life up II", 200, 100, "Permanently gain 250HP", "fire_rate", data=250)
+@card("Life up III", 400, 200, "Permanently gain 600HP", "fire_rate", data=600)
+def life_up(state, data):
+    state.player.max_life += data
+    state.player.heal(data)
