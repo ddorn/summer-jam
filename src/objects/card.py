@@ -1,7 +1,8 @@
 from random import gauss
 from typing import Dict
 
-from pygame import Surface
+import pygame
+from pygame import Surface, Vector2
 
 from src.engine import *
 
@@ -231,18 +232,49 @@ class InGameCard(BaseCard):
 
         super().__init__(img, name, descrition, effect, buy_cost, use_cost)
 
-    def compute_card_image(self, icon_surface, name, use_cost):
+    def compute_card_image(self, icon_surface, name: str, use_cost):
         icon_surface = scale(icon_surface, 2)
-        color = icon_surface.get_at((0, 0))
-        img = Surface((80, 120))
-        img.fill(color)
+        bg_color = icon_surface.get_at((0, 0))
+        text_color = "black"
+        w, h = 80, 120
+
+        # Make the card transparent
+        img = Surface((w, h))
+        img.fill("pink")
+        img.set_colorkey("pink")
+
+        pygame.draw.rect(img, bg_color, (0, 0, w, h - 10), border_radius=9)
+
         r = icon_surface.get_rect()
-        padding = (img.get_width() - r.width) / 2
-        r.midbottom = (40, 120 - padding)
+        r.midbottom = (w / 2, h - 18)
         img.blit(icon_surface, r)
 
-        t = text(name, 15, "black")
+        t = text(name, 15, text_color)
         img.blit(t, t.get_rect(midtop=(40, 8)))
+
+        # display cost
+        r = pygame.Rect(12, 0, 30, 16)
+        r.centery = h - 10 - 1
+        pygame.draw.rect(img, YELLOW, r, border_radius=9999)
+        pygame.draw.rect(img, ORANGE, r, width=1, border_radius=9999)
+        # coin icon
+        coin = image("coin")
+        r = img.blit(coin, coin.get_rect(midright=r.midright + Vector2(-4, 0)))
+        # cost text
+        t = text(str(use_cost), 12, text_color, SMALL_FONT)
+        t = auto_crop(t)
+        img.blit(t, t.get_rect(midright=r.midleft - Vector2(2, 0)))
+
+        # Level indication
+        level = len(name) - len(name.rstrip("I"))
+        r = pygame.Rect(0, 0, 17, 17)
+        r.centery = h - 10 - 1
+        r.right = w - 12
+        pygame.draw.rect(img, YELLOW, r, border_radius=9999)
+        pygame.draw.rect(img, ORANGE, r, width=1, border_radius=9999)
+        t = text(str(level), 12, text_color, SMALL_FONT)
+        t = auto_crop(t)
+        img.blit(t, t.get_rect(center=r.center))
 
         return img
 
