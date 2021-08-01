@@ -7,7 +7,7 @@ __all__ = ["Player", "Bullet"]
 class Player(Entity):
     VELOCITY = 4
     SPAWN = W / 2, H - 20
-    FIRE_COOLDOWN = 24
+    FIRE_COOLDOWN = 0
     INITIAL_LIFE = 1000
     SIZE = (20, 12)
     FIRE_DAMAGE = 60
@@ -19,7 +19,7 @@ class Player(Entity):
         self.fire_cooldown = Cooldown(self.FIRE_COOLDOWN)
         self.health_bar = HealthBar((0, 0, 30, 1), RED, self)
         self.fire_power = self.FIRE_DAMAGE
-        self.bullets = 1
+        self.bullets = 2
 
     def logic(self):
         super().logic()
@@ -39,8 +39,8 @@ class Player(Entity):
         if self.fire_cooldown.fire():
             w = 5 * (self.bullets - 1)
             for i in range(self.bullets):
-                x = chrange(i, (0, self.bullets), (-w / 2, w / 2))
-                y = abs(i - (self.bullets - 1) / 2) * 3
+                x = chrange(i, (0, self.bullets - 1), (-w / 2, w / 2))
+                y = abs(i - (self.bullets - 1) / 2) * 3 - 5
                 self.state.add(Bullet(self.center + (x, y), damage=self.fire_power))
 
     def create_inputs(self):
@@ -92,4 +92,4 @@ class Bullet(Object):
 
     def draw(self, gfx: "GFX"):
         color = "white" if self.friend else "red"
-        gfx.rect(*self.rect, color, anchor="center")
+        gfx.rect(*self.rect, color)
