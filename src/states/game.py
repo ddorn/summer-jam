@@ -29,11 +29,6 @@ class GameState(State):
 
     def spawn(self):
         for _ in range(5):
-            image = pygame.Surface((80, 120), pygame.SRCALPHA)
-            image.fill(random_rainbow_color(80, 40))
-            image.blit(
-                wrapped_text("Increase fire rate for 10 seconds", 10, (255, 255, 255), 70), (5, 40),
-            )
             self.deck.add_card(random.choice(ALL_CARDS)())
 
     def create_inputs(self) -> Inputs:
@@ -55,7 +50,7 @@ class GameState(State):
 
             @self.add_script_decorator
             def fireworks():
-                for _ in range(100):
+                for _ in range(0):
                     yield from range(6)
                     center = random_in_rect(SCREEN)
                     color = random.choice([ORANGE, RED, GREEN, YELLOW])
@@ -73,7 +68,7 @@ class GameState(State):
                             .build()
                         )
 
-                self.push_state(states.ShopState(self.player))
+                self.push_state(states.ShopState(self.wave, self.player))
                 self.go_next_level()
 
     def go_next_level(self):

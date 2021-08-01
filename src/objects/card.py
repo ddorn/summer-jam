@@ -8,7 +8,7 @@ from src.engine import *
 
 # TODO: add docstrings to this file
 
-__all__ = ["Transition", "BaseCard", "Deck"]
+__all__ = ["Transition", "BaseCard", "Deck", "InGameCard", "InShopCard"]
 
 
 class Transition:
@@ -97,7 +97,8 @@ class BaseCard(SpriteObject):
     FRAME_COUNT = 20
     SPACING = 85
 
-    def __init__(self, image, name, description, effect, buy_cost, use_cost, pos=(0, 0)):
+    def __init__(self, image, name, description, effect, buy_cost, use_cost, blueprint):
+        self.blueprint = blueprint
         self.name = name
         self.description = description
         self.effect = effect
@@ -105,7 +106,7 @@ class BaseCard(SpriteObject):
         self.use_cost = use_cost
 
         size = image.get_rect().size
-        super().__init__(pos, image, offset=(0, 0), size=size, vel=(0, 0), rotation=0)
+        super().__init__((0, 0), image, offset=(0, 0), size=size, vel=(0, 0), rotation=0)
         self.transitions: Dict[str, Transition] = {}
         self.shown = False
         self.hovered = False
@@ -226,12 +227,20 @@ class BaseCard(SpriteObject):
         self.start_transition("show", reverse=not on)
         self.shown = on
 
+    @property
+    def level(self):
+        level = self.name.rpartition(" ")[2]
+        return ["I", "II", "III", "IV"].index(level) + 1
+
 
 class InGameCard(BaseCard):
-    def __init__(self, icon_surface: Surface, name, descrition, effect, buy_cost, use_cost):
+    def __init__(
+        self, icon_surface: Surface, name, descrition, effect, buy_cost, use_cost, blueprint
+    ):
+        self.name = name  # hack
         img = self.compute_card_image(icon_surface, name, use_cost)
 
-        super().__init__(img, name, descrition, effect, buy_cost, use_cost)
+        super().__init__(img, name, descrition, effect, buy_cost, use_cost, blueprint)
 
     def compute_card_image(self, icon_surface, name: str, use_cost):
         icon_surface = scale(icon_surface, 2)
@@ -270,14 +279,12 @@ class InGameCard(BaseCard):
         img.blit(t, t.get_rect(midright=r.midleft - Vector2(2, 0)))
 
         # Level indication
-        level = name.rpartition(" ")[2]
-        level = ["I", "II", "III", "IV"].index(level) + 1
         star = auto_crop(image("star"))
         r = star.get_rect(midright=(w - 10, h - 11))
         # r = pygame.Rect(0, 0, 8 + t.get_width(), 14)
         # r.centery = h - 10 - 1
         # r.right = w - 12
-        for i in range(level):
+        for i in range(self.level):
             img.blit(star, r)
             r.x -= r.w + 1
             if i == 2:
@@ -293,8 +300,92 @@ class InGameCard(BaseCard):
         return img
 
 
+class InShopCard(BaseCard):
+    def __init__(self, icon_surface, name, description, effect, buy_cost, use_cost, blueprint):
+        self.name = name  # hack
+        img = self.compute_card_image(icon_surface, name, use_cost)
+
+        super().__init__(img, name, description, effect, buy_cost, use_cost, blueprint)
+
+    def compute_card_image(self, icon_surface, name: str, use_cost):
+        icon_surface = scale(icon_surface, 2)
+        bg_color = icon_surface.get_at((0, 0))
+        text_color = "black"
+        font_size = 12
+        w, h = 80, 120
+
+        # Make the card transparent
+        img = Surface((w, h))
+        img.fill("pink")
+        img.set_colorkey("pink")
+
+        pygame.draw.rect(img, bg_color, (0, 0, w, h - 10), border_radius=9)
+        pygame.draw.rect(img, ORANGE, (0, 0, w, h - 10), width=1, border_radius=9)
+
+        r = icon_surface.get_rect()
+        r.midbottom = (w / 2, h - 18)
+        img.blit(icon_surface, r)
+
+        t = wrapped_text(name, 15, text_color, w - 4)
+        img.blit(t, t.get_rect(midtop=(40, 8)))
+
+        # display cost
+        coin = image("coin")
+        t = text(str(use_cost), font_size, text_color, SMALL_FONT)
+        t = auto_crop(t)
+
+        r = pygame.Rect(11, 0, 9 + coin.get_width() + t.get_width() + 2, 16)
+        r.centery = h - 10 - 1
+        pygame.draw.rect(img, YELLOW, r, border_radius=9999)
+        pygame.draw.rect(img, ORANGE, r, width=1, border_radius=9999)
+        # coin icon
+        r = img.blit(coin, coin.get_rect(midright=r.midright + Vector2(-4, 0)))
+        # cost text
+        img.blit(t, t.get_rect(midright=r.midleft - Vector2(2, 0)))
+
+        # Level indication
+        star = auto_crop(image("star"))
+        r = star.get_rect(midright=(w - 10, h - 11))
+        # r = pygame.Rect(0, 0, 8 + t.get_width(), 14)
+        # r.centery = h - 10 - 1
+        # r.right = w - 12
+        for i in range(self.level):
+            img.blit(star, r)
+            r.x -= r.w + 1
+            if i == 2:
+                r.right = w - 14
+                r.y -= 6
+
+        # t = auto_crop(text(str(level), font_size, text_color, SMALL_FONT))
+
+        # pygame.draw.rect(img, YELLOW, r, border_radius=9999)
+        # pygame.draw.rect(img, ORANGE, r, width=1, border_radius=9999)
+        # img.blit(t, t.get_rect(center=r.center))
+
+        return img
+
+    def create_transitions(self, i):
+        r, c = divmod(i, 3)
+        x = 60 + 100 * c
+        y = H / 2 - 140 + 160 * r
+        pos1 = Vector2(x, y)
+        pos2 = Vector2(-100, H / 2) / 2
+
+        self.pos = pos1 if self.shown else pos2
+
+        self.add_transition(
+            "show", Transition(self, self.FRAME_COUNT, start_pos=pos2, end_pos=pos1)
+        )
+        self.add_transition(
+            "hover",
+            Transition(self, self.FRAME_COUNT // 4, start_pos=pos1, end_pos=pos1 + Vector2(0, -10)),
+        )
+        self.add_transition("use", Transition(self, self.FRAME_COUNT))
+
+
 class Deck(Object):
-    def __init__(self):
+    def __init__(self, shop_mode=False):
+        self.shop_mode = shop_mode
         super().__init__((0, 0))
         self.cards = []
         self.selected = 0
@@ -365,22 +456,25 @@ class Deck(Object):
             self.change_selected_r
         )
         use = Button(JoyButton(0), pygame.K_DOWN).on_press(self.use_card)
-        return {
-            "toggle cards": toggle,
+        inputs = {
             "change right": change_select_r,
             "change left": change_select_l,
             "use card": use,
         }
 
+        if not self.shop_mode:
+            inputs["toggle cards"] = toggle
+
+        return inputs
+
     def logic(self):
         super().logic()
-        for i, card in enumerate(self.cards):
-            if not card.alive:
-                del self.cards[i]
+
+        self.card = [card for card in self.cards if card.alive]
 
     def draw(self, gfx: "GFX"):
         super().draw(gfx)
-        if self.shown:
+        if self.shown and not self.shop_mode:
             label = text("E/Y/Triangle to hide cards", 16, (50, 50, 50))
 
             gfx.surf.blit(label, label.get_rect(bottomright=(W, H)))

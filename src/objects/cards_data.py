@@ -17,6 +17,7 @@ def card(name, cost, use_cost, descrition, image_name, *, data=None):
                 effect=lambda state: effect(state, data),
                 buy_cost=cost,
                 use_cost=use_cost,
+                blueprint=partial_card,
             )
 
         ALL_CARDS.append(partial_card)

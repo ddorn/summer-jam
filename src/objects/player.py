@@ -9,7 +9,7 @@ __all__ = ["Player", "Bullet"]
 class Player(Entity):
     VELOCITY = 4
     SPAWN = W / 2, H - 20
-    FIRE_COOLDOWN = 0
+    FIRE_COOLDOWN = 24
     INITIAL_LIFE = 1000
     SIZE = (20, 12)
     FIRE_DAMAGE = 60
@@ -24,6 +24,8 @@ class Player(Entity):
         self.bullets = 1
         self.score = 0
         self.coins = 0
+
+        self.deck = []
 
         self.hitless = True
         self.kills = 0
@@ -40,15 +42,24 @@ class Player(Entity):
         super(Player, self).draw(gfx)
         self.health_bar.draw(gfx)
 
-        # Score
-        r = gfx.blit(scale(image("cup"), 2), topleft=(10, 10))
-        t = text(str(int(self.score)), 16, WHITE)
-        gfx.blit(t, midleft=r.midright + Vector2(4, 0))
+        r = self.draw_score(gfx, self.score, topleft=(10, 10))
+        self.draw_coins(gfx, self.coins, topleft=(10, r.bottom + 5))
 
-        # Coins
-        r = gfx.blit(scale(image("coin"), 2), topleft=(10, r.bottom + 5))
-        t = text(str(int(self.coins)), 16, WHITE)
-        gfx.blit(t, midleft=r.midright + Vector2(4, 0))
+    @staticmethod
+    def draw_score(gfx, score, **anchor):
+        r = gfx.blit(scale(image("cup"), 2), **anchor)
+        t = text(str(int(score)), 16, WHITE)
+        return gfx.blit(t, midleft=r.midright + Vector2(4, 0))
+
+    @staticmethod
+    def draw_coins(gfx, coins, **anchor):
+        r = gfx.blit(scale(image("coin"), 2), **anchor)
+        t = text(str(int(coins)), 16, WHITE)
+        anchor = anchor.popitem()[0]
+        if "left" in anchor:
+            gfx.blit(t, midleft=r.midright + Vector2(4, 0))
+        else:
+            gfx.blit(t, midright=r.midleft - Vector2(4, 0))
 
     def move(self, axis):
         self.pos.x += axis.value * self.VELOCITY
