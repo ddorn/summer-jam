@@ -1,8 +1,10 @@
 from math import ceil
 import pygame
 
-from .constants import WHITE
+from .constants import WHITE, SMALL_FONT
 from .object import Object
+from .assets import text
+from .utils import auto_crop
 
 __all__ = ["HealthBar"]
 
@@ -16,11 +18,13 @@ class HealthBar(Object):
 
     Z = 99
 
-    def __init__(self, rect, color, entity):
+    def __init__(self, rect, color, entity, show_hp=False, empty_color=None):
         rect = pygame.Rect(rect)
         super().__init__(rect.topleft, rect.size)
 
         self.color = pygame.Color(color)
+        self.empty_color = pygame.Color(empty_color or (0, 0, 0, self.color.a))
+        self.show_hp = show_hp
         self.entity = entity
 
         self.flash_size = 0
@@ -57,5 +61,9 @@ class HealthBar(Object):
 
         if lost > 0:
             gfx.box(
-                (x + width + flash, y, lost, self.size.y,), (0, 0, 0, self.color.a),
+                (x + width + flash, y, lost, self.size.y,), (self.empty_color),
             )
+
+        if self.show_hp:
+            t = auto_crop(text(str(int(self.entity.life)), 8, WHITE, SMALL_FONT))
+            gfx.blit(t, midleft=self.rect.midleft + pygame.Vector2(2, 0))

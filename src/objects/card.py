@@ -479,7 +479,7 @@ class Deck(Object):
 
     def draw(self, gfx: "GFX"):
         super().draw(gfx)
-        if self.shown and not self.shop_mode:
-            label = text("E/Y/Triangle to hide cards", 16, (50, 50, 50))
-
-            gfx.surf.blit(label, label.get_rect(bottomright=(W, H)))
+        # if self.shown and not self.shop_mode:
+        #     label = text("E/Y/Triangle to hide cards", 16, (50, 50, 50))
+        #
+        #     gfx.surf.blit(label, label.get_rect(bottomright=(W, H)))

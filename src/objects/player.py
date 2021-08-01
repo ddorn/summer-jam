@@ -11,12 +11,15 @@ class Player(Entity):
     FIRE_COOLDOWN = 24
     INITIAL_LIFE = 1000
     FIRE_DAMAGE = 60
+    HEALTH_HEIGHT = 9
 
     def __init__(self):
         img = image("starship")
-        super().__init__((W / 2, H - img.get_height()), img, size=None)
+        super().__init__((W / 2, H - img.get_height() - self.HEALTH_HEIGHT), img, size=None)
         self.fire_cooldown = Cooldown(self.FIRE_COOLDOWN)
-        self.health_bar = HealthBar((0, 0, 30, 1), RED, self)
+        self.health_bar = HealthBar(
+            (0, H - self.HEALTH_HEIGHT, W, self.HEALTH_HEIGHT), RED, self, True, 0x9988C3
+        )
         self.fire_power = self.FIRE_DAMAGE
         self.bullets = 1
         self.score = 0
@@ -33,7 +36,7 @@ class Player(Entity):
         super().logic()
         self.fire_cooldown.tick()
         self.health_bar.logic()
-        self.health_bar.center = self.center + (0, self.size.y / 2 + 6)
+        # self.health_bar.center = self.center - (0, self.size.y / 2 + 6)
 
     def draw(self, gfx: "GFX"):
         super(Player, self).draw(gfx)
