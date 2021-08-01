@@ -12,7 +12,7 @@ class Ennemy(Entity):
     EDGE = 30
     SPEED = 1
     SCALE = 2
-    INITIAL_LIFE = 200
+    INITIAL_LIFE = 100
 
     FIRE_DAMAGE = 100
 

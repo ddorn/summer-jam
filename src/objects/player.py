@@ -10,7 +10,7 @@ class Player(Entity):
     FIRE_COOLDOWN = 24
     INITIAL_LIFE = 1000
     SIZE = (20, 12)
-    FIRE_DAMAGE = 250
+    FIRE_DAMAGE = 60
 
     def __init__(self):
         img = pygame.Surface(self.SIZE)
@@ -36,18 +36,14 @@ class Player(Entity):
 
     def fire(self, _button):
         if self.fire_cooldown.fire():
-            self.state.add(Bullet(self.center))
+            self.state.add(Bullet(self.center, damage=self.fire_power))
 
     def create_inputs(self):
-        motion = Axis(
-            pygame.K_a,
-            pygame.K_d,
-            JoyAxis(JOY_HORIZ_LEFT),
-        ).always_call(self.move)
+        motion = Axis(pygame.K_a, pygame.K_d, JoyAxis(JOY_HORIZ_LEFT),).always_call(self.move)
 
-        fire = Button(
-            pygame.K_SPACE, MouseButtonPress(1), JoyButton(0)
-        ).on_press_repeated(self.fire, 0)
+        fire = Button(pygame.K_SPACE, MouseButtonPress(1), JoyButton(0)).on_press_repeated(
+            self.fire, 0
+        )
         return {
             "player motion": motion,
             "fire": fire,
@@ -81,7 +77,7 @@ class Bullet(Object):
         target: Entity
         for target in targets:
             if target.rect.colliderect(self.rect):
-                target.damage(400)
+                target.damage(self.damage)
                 self.alive = False
 
                 if self.friend:

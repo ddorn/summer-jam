@@ -1,5 +1,7 @@
 import random
-from src.objects.card import Card
+from random import choice
+
+from src.objects.card import BaseCard
 from typing import List
 
 from engine import *
@@ -26,12 +28,9 @@ class CardTestState(State):
             image = pygame.Surface((80, 120), pygame.SRCALPHA)
             image.fill(random_rainbow_color(80, 40))
             image.blit(
-                wrapped_text(
-                    "Increase fire rate for 10 seconds", 10, (255, 255, 255), 70
-                ),
-                (5, 40),
+                wrapped_text("Increase fire rate for 10 seconds", 10, (255, 255, 255), 70), (5, 40),
             )
-            self.deck.add_card(Card(image, f=change_fire_rate))
+            self.deck.add_card(choice(ALL_CARDS)())
 
         ai = EnemyBlockAI()
         for e in ai.spawn():

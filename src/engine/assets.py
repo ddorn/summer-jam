@@ -58,8 +58,8 @@ def font(size: int, name: str = None):
 
 
 @lru_cache(10000)
-def text(txt, size, color, name=None):
-    return font(size, name).render(txt, False, color)
+def text(txt, size, color, font_name=None):
+    return font(size, font_name).render(txt, False, color)
 
 
 @lru_cache(1000)

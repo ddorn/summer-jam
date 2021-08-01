@@ -1,12 +1,13 @@
 from random import gauss
 from typing import Dict
-import pygame
+
+from pygame import Surface
 
 from src.engine import *
 
 # TODO: add docstrings to this file
 
-__all__ = ["Transition", "Card", "Deck", "change_fire_rate"]
+__all__ = ["Transition", "BaseCard", "Deck"]
 
 
 class Transition:
@@ -91,18 +92,23 @@ class Transition:
             self.running = False
 
 
-class Card(SpriteObject):
+class BaseCard(SpriteObject):
     FRAME_COUNT = 20
     SPACING = 85
 
-    def __init__(self, image, pos=(0, 0), f=None):
+    def __init__(self, image, name, description, effect, buy_cost, use_cost, pos=(0, 0)):
+        self.name = name
+        self.description = description
+        self.effect = effect
+        self.buy_cost = buy_cost
+        self.use_cost = use_cost
+
         size = image.get_rect().size
         super().__init__(pos, image, offset=(0, 0), size=size, vel=(0, 0), rotation=0)
         self.transitions: Dict[str, Transition] = {}
         self.shown = False
         self.hovered = False
         self.used = False
-        self.func = f
         self.using_controller = False
 
     def create_transitions(self, i):
@@ -128,13 +134,7 @@ class Card(SpriteObject):
         self.pos = pos2 if self.shown else pos1
         self.Z = card_num - i
         self.add_transition(
-            "show",
-            Transition(
-                self,
-                self.FRAME_COUNT,
-                start_pos=pos1,
-                end_pos=pos2,
-            ),
+            "show", Transition(self, self.FRAME_COUNT, start_pos=pos1, end_pos=pos2,),
         )
         self.add_transition(
             "hover",
@@ -168,19 +168,13 @@ class Card(SpriteObject):
             for card in self.state.deck.cards:
                 card.using_controller = False
 
-        if (
-            not self.using_controller
-            and not self.used
-            and not self.transitions["show"].running
-        ):
+        if not self.using_controller and not self.used and not self.transitions["show"].running:
             colliding = rect.collidepoint(pygame.mouse.get_pos())
 
             if colliding and not self.hovered and not self.transitions["hover"].running:
                 self.hover(True)
 
-            elif (
-                not colliding and self.hovered and not self.transitions["hover"].running
-            ):
+            elif not colliding and self.hovered and not self.transitions["hover"].running:
                 self.hover(False)
 
             if self.hovered and pygame.mouse.get_pressed(3)[0]:
@@ -209,8 +203,8 @@ class Card(SpriteObject):
         if not self.shown or not self.hovered:
             return
 
-        if self.func:
-            self.func(self.state)
+        if self.effect:
+            self.effect(self.state)
 
         self.start_transition("use")
         self.used = True
@@ -231,12 +225,38 @@ class Card(SpriteObject):
         self.shown = on
 
 
+class InGameCard(BaseCard):
+    def __init__(self, icon_surface: Surface, name, descrition, effect, buy_cost, use_cost):
+        img = self.compute_card_image(icon_surface, name, use_cost)
+
+        super().__init__(img, name, descrition, effect, buy_cost, use_cost)
+
+    def compute_card_image(self, icon_surface, name, use_cost):
+        icon_surface = scale(icon_surface, 2)
+        color = icon_surface.get_at((0, 0))
+        img = Surface((80, 120))
+        img.fill(color)
+        r = icon_surface.get_rect()
+        padding = (img.get_width() - r.width) / 2
+        r.midbottom = (40, 120 - padding)
+        img.blit(icon_surface, r)
+
+        t = text(name, 15, "black")
+        img.blit(t, t.get_rect(midtop=(40, 8)))
+
+        return img
+
+
 class Deck(Object):
     def __init__(self):
         super().__init__((0, 0))
         self.cards = []
         self.selected = 0
         self.shown = False
+
+    def script(self):
+        yield
+        self.toggle_cards(0)
 
     def add_card(self, *cards):
         self.selected = 0
@@ -286,15 +306,13 @@ class Deck(Object):
             self.change_selected_r(_)
 
     def create_inputs(self):
-        toggle = Button(MouseButtonPress(3), JoyButton(3), pygame.K_e).on_press(
-            self.toggle_cards
+        toggle = Button(MouseButtonPress(3), JoyButton(3), pygame.K_e).on_press(self.toggle_cards)
+        change_select_l = Button(JoyHatButton(1, -1, use_ps4_buttons=True), pygame.K_LEFT).on_press(
+            self.change_selected_l
         )
-        change_select_l = Button(
-            JoyHatButton(1, -1, use_ps4_buttons=True), pygame.K_LEFT
-        ).on_press(self.change_selected_l)
-        change_select_r = Button(
-            JoyHatButton(1, 1, use_ps4_buttons=True), pygame.K_RIGHT
-        ).on_press(self.change_selected_r)
+        change_select_r = Button(JoyHatButton(1, 1, use_ps4_buttons=True), pygame.K_RIGHT).on_press(
+            self.change_selected_r
+        )
         use = Button(JoyButton(0), pygame.K_DOWN).on_press(self.use_card)
         return {
             "toggle cards": toggle,
@@ -308,11 +326,3 @@ class Deck(Object):
         for i, card in enumerate(self.cards):
             if not card.alive:
                 del self.cards[i]
-
-
-def change_fire_rate(state):
-    state.player.fire_cooldown.auto_lock = 18
-
-    @state.do_later(300)
-    def change_back():
-        state.player.fire_cooldown.auto_lock = 24
