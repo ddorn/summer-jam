@@ -138,6 +138,13 @@ class Bullet(Object):
 
                 return
 
+        if self.friend:
+            for bullet in self.state.get_all(Bullet):
+                if not bullet.friend and self.rect.colliderect(bullet.rect):
+                    self.alive = False
+                    bullet.alive = False
+                    self.state.player.did_hit(bullet, self)
+
     def draw(self, gfx: "GFX"):
         color = "white" if self.friend else "red"
         gfx.rect(*self.rect, color)

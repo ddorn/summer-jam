@@ -33,6 +33,9 @@ class Enemy(Entity):
         self.state.add(Bullet(self.center, self, damage=self.FIRE_DAMAGE * boost, friend=False))
 
     def logic(self):
+        if self.pos.y > H - self.ai.ROW_HEIGHT * 2 and not isinstance(self.ai, FleeAI):
+            self.ai.remove(self)
+            self.ai = FleeAI()
         self.ai.logic(self)
         super().logic()
         if randrange(500) == 42:
@@ -75,6 +78,12 @@ class AI:
     def add(self, enemy):
         self.controled.add(enemy)
 
+    def remove(self, enemy):
+        try:
+            self.controled.remove(enemy)
+        except KeyError:
+            pass
+
     def call_once_per_frame(self, enemy) -> bool:
         # The logic will run only when called with an enemy
         # which is in the called_on set, which should mean
@@ -110,7 +119,7 @@ class EnemyBlockAI(AI):
         wall_right = max_x > W - self.EDGE
 
         speed_boost = chrange(
-            len(self.controled), (0, self.max_controled), (1, 3), power=3, flipped=True
+            len(self.controled), (0, self.max_controled), (1, 5), power=3, flipped=True
         )
 
         self.go_down_duration -= 1
@@ -171,5 +180,23 @@ class SnakeAI(AI):
             yield self.EDGE, y + self.ROW_HEIGHT
             y += 2 * self.ROW_HEIGHT
 
+    def spawn(self, count):
+        for i in range(count):
+            pos = self.EDGE, self.EDGE - i * self.ROW_HEIGHT
+            yield Enemy(pos, self)
+
     def add(self, enemy):
         super().add(enemy)
+
+
+class FleeAI(AI):
+    def __init__(self):
+        super().__init__()
+
+    def logic(self, enemy):
+        super().logic(enemy)
+        direction = 1 if enemy.pos.x > W / 2 else -1
+        enemy.vel = Vector2(direction * enemy.SPEED * 3, 0)
+
+        if not enemy.rect.colliderect(SCREEN):
+            enemy.alive = False

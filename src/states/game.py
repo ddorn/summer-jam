@@ -4,6 +4,7 @@ import random
 import states
 from engine import *
 from objects import *
+from objects.levels import level
 
 
 @dataclass
@@ -22,8 +23,9 @@ class GameState(State):
         self.player = self.add(Player())
         self.deck = self.add(Deck())
         self.spawn()
-        self.levels = []
+        self.level = level()
         self.level_ended = False
+        self.go_next_level()
 
     def spawn(self):
         for _ in range(5):
@@ -33,10 +35,6 @@ class GameState(State):
                 wrapped_text("Increase fire rate for 10 seconds", 10, (255, 255, 255), 70), (5, 40),
             )
             self.deck.add_card(random.choice(ALL_CARDS)())
-
-        ai = EnemyBlockAI()
-        for e in ai.spawn():
-            self.add(e)
 
     def create_inputs(self) -> Inputs:
         inputs = super().create_inputs()
@@ -66,7 +64,7 @@ class GameState(State):
                             SquareParticle(color)
                             .builder()
                             .at(center, a := uniform(0, 360))
-                            .hsv(a, 0.8)
+                            # .hsv(a, 0.8)
                             .velocity(random.gauss(3, 0.5))
                             .acceleration(-0.05)
                             .anim_fade()
@@ -81,6 +79,11 @@ class GameState(State):
     def go_next_level(self):
         self.level_ended = False
         self.player.go_next_level()
+
+        for enemy in self.level:
+            if enemy is None:
+                break
+            self.add(enemy)
 
     def script(self):
         while True:
