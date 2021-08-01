@@ -90,13 +90,14 @@ class State(Scriptable):
     def on_resume(self):
         self.inputs = self.create_inputs()
         self.next_state = (StateOperations.NOP, None)
+        self.debug.paused = False
         if self.BG_MUSIC and not settings.mute:
             pygame.mixer.music.load(MUSIC / self.BG_MUSIC)
             # pygame.mixer.music.set_volume(VOLUME['BG_MUSIC'] * Settings().music)
             pygame.mixer.music.play(-1)
 
     def on_exit(self):
-        pass
+        self.debug.paused = True
 
     def script(self):
         """Script must be a generator where each yield will correspond to a frame.

@@ -1,11 +1,14 @@
 import random
 from random import choice
 
-from src.objects.card import BaseCard
+import pygame
+
+from objects.card import BaseCard
 from typing import List
 
 from engine import *
 from objects import *
+import states
 
 
 class CardTestState(State):
@@ -35,3 +38,11 @@ class CardTestState(State):
         ai = EnemyBlockAI()
         for e in ai.spawn():
             self.add(e)
+
+    def create_inputs(self) -> Inputs:
+        inputs = super().create_inputs()
+
+        inputs["pause"] = Button(pygame.K_p)
+        inputs["pause"].on_press(self.push_state_callback(states.PauseState, self))
+
+        return inputs
