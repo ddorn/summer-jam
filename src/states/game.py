@@ -78,6 +78,9 @@ class GameState(State):
         self.level_ended = False
         self.player.go_next_level()
 
+        # Remove all bullets
+        self.objects = {o for o in self.objects if not isinstance(o, Bullet)}
+
         for enemy in EnemyBlockAI().spawn_wave(self.wave):
             self.add(enemy)
 

@@ -8,16 +8,13 @@ __all__ = ["Player", "Bullet"]
 
 class Player(Entity):
     VELOCITY = 4
-    SPAWN = W / 2, H - 20
     FIRE_COOLDOWN = 24
     INITIAL_LIFE = 1000
-    SIZE = (20, 12)
     FIRE_DAMAGE = 60
 
     def __init__(self):
-        img = pygame.Surface(self.SIZE)
-        img.fill(GREEN)
-        super().__init__(self.SPAWN, img, size=self.SIZE)
+        img = image("starship")
+        super().__init__((W / 2, H - img.get_height()), img, size=None)
         self.fire_cooldown = Cooldown(self.FIRE_COOLDOWN)
         self.health_bar = HealthBar((0, 0, 30, 1), RED, self)
         self.fire_power = self.FIRE_DAMAGE

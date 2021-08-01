@@ -13,11 +13,13 @@ def damager(enemy):
     enemy.color = (255, 0, 0)
     enemy.POINTS = 30
 
+
 def tank(enemy):
     enemy.INITIAL_LIFE *= 3
     enemy.color = (182, 3, 252)
     enemy.POINTS = 45
     print(enemy.INITIAL_LIFE)
+
 
 def worthy(enemy):
     enemy.color = (255, 215, 0)
@@ -30,6 +32,7 @@ enemy_datas = (
     damager,
     worthy,
 )
+
 
 class Enemy(Entity):
     EDGE = 30
@@ -52,8 +55,6 @@ class Enemy(Entity):
         self.ai = ai
         ai.add(self)
         self.spawning = True
-
-
 
     def fire(self):
         from objects import Bullet
