@@ -21,7 +21,8 @@ __all__ = [
     "ShardParticle",
 ]
 
-from src.engine.utils import bounce, exp_impulse, random_in_rect
+from .assets import text
+from .utils import bounce, exp_impulse, random_in_rect
 
 pygame.init()
 
@@ -341,7 +342,7 @@ class Particle:
 class DrawnParticle(Particle):
     def __init__(self, color=None):
         self.color = pygame.Color(color or 0)
-        super().__init__()
+        Particle.__init__(self)
 
     @property
     def alpha(self):
@@ -522,6 +523,18 @@ class ImageParticle(Particle):
         super(ImageParticle, self).logic()
         if int(last_size) != int(self.size):
             self.need_redraw = True
+
+
+class TextParticle(DrawnParticle, ImageParticle):
+    def __init__(self, txt, color=None, font_name=None):
+        DrawnParticle.__init__(self, color)
+        self.text = txt
+        self.font_name = font_name
+        ImageParticle.__init__(self, self.redraw())
+
+    def redraw(self):
+        surf = text(self.text, int(self.size), tuple(self.color), self.font_name)
+        return surf
 
 
 def main():

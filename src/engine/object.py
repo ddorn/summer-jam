@@ -6,7 +6,7 @@ import pygame
 from .gfx import GFX
 from .assets import font, rotate
 from .constants import GREEN, RED, UPWARDS
-from .particles import ImageParticle
+from .particles import ImageParticle, TextParticle
 from .utils import overlay, random_in_rect, random_rainbow_color
 
 if TYPE_CHECKING:
@@ -263,10 +263,9 @@ class Entity(SpriteObject):
 
         self.life += amount
 
-        surf = font(20).render(str(int(amount)), False, GREEN)
         pos = random_in_rect(self.rect)
         self.state.particles.add(
-            ImageParticle(surf)
+            TextParticle(str(int(amount)), GREEN)
             .builder()
             .at(pos, 90)
             .velocity(0)
@@ -284,7 +283,7 @@ class Entity(SpriteObject):
         if self.invincible and not ignore_invincibility:
             return
 
-        amount *= gauss(1, 0.1)
+        # amount *= gauss(1, 0.1)
 
         self.last_hit = 0
 
@@ -293,13 +292,9 @@ class Entity(SpriteObject):
             self.life = 0
             self.alive = False
 
-        surf = font(20).render(str(int(amount)), False, RED)
-
-        from src.engine import ImageParticle
-
         pos = random_in_rect(self.rect)
         self.state.particles.add(
-            ImageParticle(surf)
+            TextParticle(str(int(amount)), RED)
             .builder()
             .at(pos, 90)
             .velocity(0)
