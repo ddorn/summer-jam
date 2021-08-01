@@ -391,6 +391,13 @@ class Deck(Object):
         self.selected = 0
         self.shown = False
 
+    @property
+    def selected_card(self):
+        try:
+            return self.cards[self.selected]
+        except IndexError:
+            return None
+
     def script(self):
         yield
         self.toggle_cards(0)

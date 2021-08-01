@@ -71,7 +71,7 @@ def bullet_up(state, data):
             state.player.bullets -= data[0] - 1
 
 
-@card("Push enemies I", 100, 10, "Push enemies back two row", "fire_rate", data=2)
+@card("Push enemies I", 100, 10, "Push enemies back two rows", "fire_rate", data=2)
 @card("Push enemies II", 200, 15, "Push enemies back three rows", "fire_rate", data=3)
 @card("Push enemies III", 400, 20, "Push enemies back five rows", "fire_rate", data=5)
 def push_enemies(state, data):

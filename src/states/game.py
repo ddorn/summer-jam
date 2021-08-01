@@ -37,6 +37,8 @@ class GameState(State):
         inputs["pause"] = Button(pygame.K_p)
         inputs["pause"].on_press(self.push_state_callback(states.PauseState, self))
 
+        inputs[""] = Button(pygame.K_k).on_press(self.go_next_level)
+
         return inputs
 
     def logic(self):
@@ -71,13 +73,13 @@ class GameState(State):
                 self.push_state(states.ShopState(self.wave, self.player))
                 self.go_next_level()
 
-    def go_next_level(self):
+    def go_next_level(self, *_):
         self.wave += 1
         self.level_ended = False
         self.player.go_next_level()
 
-        for enemy in EnemyBlockAI().spawn_wave(self.wave):
-            self.add(enemy)
+        # for enemy in EnemyBlockAI().spawn_wave(self.wave):
+        #     self.add(enemy)
 
     def script(self):
         while True:

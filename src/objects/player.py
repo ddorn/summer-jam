@@ -57,9 +57,10 @@ class Player(Entity):
         t = text(str(int(coins)), 16, WHITE)
         anchor = anchor.popitem()[0]
         if "left" in anchor:
-            gfx.blit(t, midleft=r.midright + Vector2(4, 0))
+            r2 = gfx.blit(t, midleft=r.midright + Vector2(4, 0))
         else:
-            gfx.blit(t, midright=r.midleft - Vector2(4, 0))
+            r2 = gfx.blit(t, midright=r.midleft - Vector2(4, 0))
+        return r.union(r2)
 
     def move(self, axis):
         self.pos.x += axis.value * self.VELOCITY

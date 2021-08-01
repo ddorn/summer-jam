@@ -84,7 +84,7 @@ def colored_text(size, *parts, name=None):
 
 
 @lru_cache()
-def wrapped_text(txt: str, size, color, max_width, name=None):
+def wrapped_text(txt: str, size, color, max_width, name=None, align_right=False):
     f = font(size, name)
 
     words = txt.split()
@@ -108,7 +108,10 @@ def wrapped_text(txt: str, size, color, max_width, name=None):
 
     y = 0
     for surf in surfaces:
-        output.blit(surf, surf.get_rect(midtop=(w / 2, y)))
+        if align_right:
+            output.blit(surf, surf.get_rect(topright=(w, y)))
+        else:
+            output.blit(surf, surf.get_rect(midtop=(w / 2, y)))
         y += surf.get_height()
 
     return output
