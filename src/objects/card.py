@@ -205,6 +205,8 @@ class BaseCard(SpriteObject):
         if not self.shown or not self.hovered:
             return
 
+        self.state.player.coins -= self.cost
+
         if self.effect:
             self.effect(self.state)
 
@@ -241,6 +243,10 @@ class BaseCard(SpriteObject):
         if self.can_use(self.state.player):
             return img
         return overlay(img, (0, 0, 0), 100)
+
+    @property
+    def cost(self):
+        return self.use_cost
 
 
 class InGameCard(BaseCard):
@@ -307,6 +313,9 @@ class InGameCard(BaseCard):
         # img.blit(t, t.get_rect(center=r.center))
 
         return img
+
+    def can_use(self, player):
+        return player.coins >= self.use_cost
 
 
 class InShopCard(BaseCard):
@@ -391,7 +400,11 @@ class InShopCard(BaseCard):
         self.add_transition("use", Transition(self, self.FRAME_COUNT))
 
     def can_use(self, player):
-        return player.coins > self.buy_cost
+        return player.coins >= self.buy_cost
+
+    @property
+    def cost(self):
+        return self.buy_cost
 
 
 class Deck(Object):
@@ -403,7 +416,7 @@ class Deck(Object):
         self.shown = False
 
     @property
-    def selected_card(self):
+    def selected_card(self) -> BaseCard:
         try:
             return self.cards[self.selected]
         except IndexError:
@@ -455,6 +468,10 @@ class Deck(Object):
 
     def use_card(self, _):
         if not self.cards or self.selected > len(self.cards) or not self.shown:
+            return
+
+        print(self.selected_card)
+        if not self.selected_card.can_use(self.state.player):
             return
 
         self.cards[self.selected].use()
