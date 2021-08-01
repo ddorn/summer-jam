@@ -125,7 +125,7 @@ def life_up(state, data):
 
 
 @card("Bad news I", -100, 0, "Permanently loose 25HP", "fire_rate", data=25)
-@card("Bad news II3", -200, 0, "Permanently loose 50HP", "fire_rate", data=50)
+@card("Bad news II", -200, 0, "Permanently loose 50HP", "fire_rate", data=50)
 @card("Bad news III", -400, 0, "Permanently loose 100HP", "fire_rate", data=100)
 def bad_news(state, data):
     state.player.damage(data)

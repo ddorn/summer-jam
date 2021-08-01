@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from random import choice
+import random
 
 import states
 from engine import *
@@ -13,11 +13,6 @@ class GameValues:
 
 
 class GameState(State):
-    BG_COLORS = [
-        0x134180,
-        0x9463AA,
-        0x3C926E,
-    ]
     FPS = 60
 
     def __init__(self):
@@ -35,7 +30,7 @@ class GameState(State):
             image.blit(
                 wrapped_text("Increase fire rate for 10 seconds", 10, (255, 255, 255), 70), (5, 40),
             )
-            self.deck.add_card(choice(ALL_CARDS)())
+            self.deck.add_card(random.choice(ALL_CARDS)())
 
         ai = EnemyBlockAI()
         for e in ai.spawn():
@@ -48,3 +43,17 @@ class GameState(State):
         inputs["pause"].on_press(self.push_state_callback(states.PauseState, self))
 
         return inputs
+
+    def script(self):
+        while True:
+            self.particles.add(
+                SquareParticle((255, 255, 255))
+                .builder()
+                .velocity(0)
+                .at(random_in_rect(SCREEN))
+                .sized(1)
+                .anim_fade()
+                .living(180)
+                .build()
+            )
+            yield from particles.rrange(random.gauss(14, 4))

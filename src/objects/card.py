@@ -305,9 +305,7 @@ class Deck(Object):
             card.show(not card.shown)
 
     def change_selected_r(self, _):
-        if self.selected > len(self.cards):
-            return
-        if not self.shown:
+        if not self.cards or self.selected > len(self.cards) or not self.shown:
             return
 
         if self.cards[self.selected].hovered:
@@ -316,19 +314,16 @@ class Deck(Object):
         self.cards[self.selected].hover(True, True)
 
     def change_selected_l(self, _):
-        if self.selected >= len(self.cards):
+        if not self.cards or self.selected > len(self.cards) or not self.shown:
             return
-        if not self.shown:
-            return
+
         if self.cards[self.selected].hovered:
             self.cards[self.selected].hover(False, True)
         self.selected = (self.selected - 1) % len(self.cards)
         self.cards[self.selected].hover(True, True)
 
     def use_card(self, _):
-        if self.selected > len(self.cards):
-            return
-        if not self.shown:
+        if not self.cards or self.selected > len(self.cards) or not self.shown:
             return
 
         self.cards[self.selected].use()
@@ -358,3 +353,10 @@ class Deck(Object):
         for i, card in enumerate(self.cards):
             if not card.alive:
                 del self.cards[i]
+
+    def draw(self, gfx: "GFX"):
+        super().draw(gfx)
+        if self.shown:
+            label = text("E/Y/Triangle to hide cards", 16, (50, 50, 50))
+
+            gfx.surf.blit(label, label.get_rect(bottomright=(W, H)))
