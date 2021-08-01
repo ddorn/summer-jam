@@ -9,7 +9,7 @@ __all__ = ["Player", "Bullet"]
 class Player(Entity):
     VELOCITY = 4
     SPAWN = W / 2, H - 20
-    FIRE_COOLDOWN = 24
+    FIRE_COOLDOWN = 0
     INITIAL_LIFE = 1000
     SIZE = (20, 12)
     FIRE_DAMAGE = 60

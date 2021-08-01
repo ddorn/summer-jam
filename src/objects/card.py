@@ -320,7 +320,7 @@ class Deck(Object):
 
     def change_selected_r(self, _):
         if not self.cards or self.selected > len(self.cards) or not self.shown:
-            return 
+            return
 
         try:
             if self.cards[self.selected].hovered:

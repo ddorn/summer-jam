@@ -195,6 +195,7 @@ class SpriteObject(Object):
         self.base_image = image
         self.image_offset = pygame.Vector2(offset)
         self.rotation = rotation
+        self.opacity = 255
 
         super().__init__(pos, size, vel)
 
@@ -208,7 +209,9 @@ class SpriteObject(Object):
 
     @property
     def image(self):
-        return rotate(self.base_image, int(self.rotation))
+        img = rotate(self.base_image, int(self.rotation))
+        img.set_alpha(self.opacity)
+        return img
 
     def draw(self, gfx: "GFX"):
         super().draw(gfx)

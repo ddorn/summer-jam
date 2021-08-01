@@ -25,6 +25,7 @@ class Enemy(Entity):
         super().__init__(pos, self.IMAGE, size=None, vel=(self.SPEED, 0))
         self.ai = ai
         ai.add(self)
+        self.spawning = True
 
     def fire(self):
         from objects import Bullet
@@ -32,7 +33,21 @@ class Enemy(Entity):
         boost = self.state.game_values.enemy_damage_boost
         self.state.add(Bullet(self.center, self, damage=self.FIRE_DAMAGE * boost, friend=False))
 
+    def script(self):
+        initial_vel = self.vel
+        self.vel = Vector2()
+        spawn_frames = 40
+        for i in range(spawn_frames):
+            self.opacity = int(chrange(i, (0, spawn_frames - 1), (0, 255)))
+            yield
+        self.spawning = False
+        self.vel = initial_vel
+
     def logic(self):
+        if self.spawning:
+            super().logic()
+            return
+
         if self.pos.y > H - self.ai.ROW_HEIGHT * 2 and not isinstance(self.ai, FleeAI):
             self.ai.remove(self)
             self.ai = FleeAI()
@@ -133,7 +148,8 @@ class EnemyBlockAI(AI):
             self.set_direction(0, 1)  # down
 
         for enemy in self.controled:
-            enemy.vel.scale_to_length(enemy.SPEED * speed_boost)
+            if enemy.vel.length() > 0:
+                enemy.vel.scale_to_length(enemy.SPEED * speed_boost)
 
         # We call super only later, because sometimes the AI logic is called
         # even if the enemy is dead, because it was killed in the same frame
@@ -147,6 +163,10 @@ class EnemyBlockAI(AI):
                 x = chrange(col, (0, cols - 1), (self.EDGE * 3, W - self.EDGE * 3))
                 y = self.EDGE + row * self.ROW_HEIGHT
                 yield Enemy((x, y), self)
+
+    def spawn_wave(self, wave):
+        rows = 4 + wave // 3
+        yield from self.spawn(rows)
 
 
 class SnakeAI(AI):

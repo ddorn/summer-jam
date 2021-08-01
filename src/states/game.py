@@ -23,7 +23,7 @@ class GameState(State):
         self.player = self.add(Player())
         self.deck = self.add(Deck())
         self.spawn()
-        self.level = level()
+        self.wave = 0
         self.level_ended = False
         self.go_next_level()
 
@@ -77,12 +77,11 @@ class GameState(State):
                 self.go_next_level()
 
     def go_next_level(self):
+        self.wave += 1
         self.level_ended = False
         self.player.go_next_level()
 
-        for enemy in self.level:
-            if enemy is None:
-                break
+        for enemy in EnemyBlockAI().spawn_wave(self.wave):
             self.add(enemy)
 
     def script(self):

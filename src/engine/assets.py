@@ -101,7 +101,6 @@ def wrapped_text(txt: str, size, color, max_width, name=None):
 
     w = max(s.get_width() for s in surfaces)
     h = sum(s.get_height() for s in surfaces)
-    print(w, h)
 
     output = pygame.Surface((w, h))
     output.fill(1)  # 1 is #000001 which is a color I never use (hopefully)
