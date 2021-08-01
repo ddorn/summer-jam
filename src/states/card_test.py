@@ -1,14 +1,15 @@
-import random
+from dataclasses import dataclass
 from random import choice
 
-import pygame
-
-from objects.card import BaseCard
-from typing import List
-
+import states
 from engine import *
 from objects import *
-import states
+
+
+@dataclass
+class GameValues:
+    enemy_damage_boost = 1
+    points_bonus = 1
 
 
 class CardTestState(State):
@@ -22,6 +23,7 @@ class CardTestState(State):
     def __init__(self):
         super().__init__()
 
+        self.game_values = GameValues()
         self.player = self.add(Player())
         self.deck = self.add(Deck())
         self.spawn()

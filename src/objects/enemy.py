@@ -28,7 +28,8 @@ class Ennemy(Entity):
     def fire(self):
         from objects import Bullet
 
-        self.state.add(Bullet(self.center, damage=self.FIRE_DAMAGE, friend=False))
+        boost = self.state.game_values.enemy_damage_boost
+        self.state.add(Bullet(self.center, damage=self.FIRE_DAMAGE * boost, friend=False))
 
     def logic(self):
         self.ai.logic(self)

@@ -55,7 +55,7 @@ def heal(state, data):
 @card("Bullet up II", 350, 15, "Three bullets per shot for 4 seconds", "fire_rate", data=(3, 4))
 @card("Bullet up III", 500, 20, "Three bullets per shot for 8 seconds", "fire_rate", data=(3, 8))
 @card("Bullet up IIII", 500, 200, "Permanently shoot one more bullet", "fire_rate", data=None)
-def heal(state, data):
+def bullet_up(state, data):
     if data is None:
         state.player.bullets += 1
     else:
@@ -69,6 +69,35 @@ def heal(state, data):
 @card("Push enemies I", 100, 10, "Push enemies back two row", "fire_rate", data=2)
 @card("Push enemies II", 200, 15, "Push enemies back three rows", "fire_rate", data=3)
 @card("Push enemies III", 400, 20, "Push enemies back five rows", "fire_rate", data=5)
-def heal(state, data):
+def push_enemies(state, data):
     for enemy in state.get_all("Ennemy"):
         enemy.push_back(data)
+
+
+@card(
+    "Danger Zone I",
+    100,
+    10,
+    "Enemies deal 10% more damage and give 10% more points (permanent)",
+    "fire_rate",
+    data=(10, 10),
+)
+@card(
+    "Danger Zone II",
+    200,
+    15,
+    "Enemies deal 15% more damage and give 20% more points (permanent)",
+    "fire_rate",
+    data=(15, 20),
+)
+@card(
+    "Danger Zone III",
+    400,
+    20,
+    "Enemies deal 20% more damage and give 30% more points (permanent)",
+    "fire_rate",
+    data=(20, 30),
+)
+def danger_zone(state, data):
+    state.game_values.enemy_damage_boost += data[0] / 100
+    state.game_values.points_bonus += data[1] / 100
