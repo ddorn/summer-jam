@@ -253,16 +253,17 @@ class InGameCard(BaseCard):
         img.blit(t, t.get_rect(midtop=(40, 8)))
 
         # display cost
-        r = pygame.Rect(12, 0, 30, 16)
+        coin = image("coin")
+        t = text(str(use_cost), 12, text_color, SMALL_FONT)
+        t = auto_crop(t)
+
+        r = pygame.Rect(12, 0, 9 + coin.get_width() + t.get_width() + 2, 16)
         r.centery = h - 10 - 1
         pygame.draw.rect(img, YELLOW, r, border_radius=9999)
         pygame.draw.rect(img, ORANGE, r, width=1, border_radius=9999)
         # coin icon
-        coin = image("coin")
         r = img.blit(coin, coin.get_rect(midright=r.midright + Vector2(-4, 0)))
         # cost text
-        t = text(str(use_cost), 12, text_color, SMALL_FONT)
-        t = auto_crop(t)
         img.blit(t, t.get_rect(midright=r.midleft - Vector2(2, 0)))
 
         # Level indication
