@@ -236,6 +236,7 @@ class InGameCard(BaseCard):
         icon_surface = scale(icon_surface, 2)
         bg_color = icon_surface.get_at((0, 0))
         text_color = "black"
+        font_size = 12
         w, h = 80, 120
 
         # Make the card transparent
@@ -244,6 +245,7 @@ class InGameCard(BaseCard):
         img.set_colorkey("pink")
 
         pygame.draw.rect(img, bg_color, (0, 0, w, h - 10), border_radius=9)
+        pygame.draw.rect(img, ORANGE, (0, 0, w, h - 10), width=1, border_radius=9)
 
         r = icon_surface.get_rect()
         r.midbottom = (w / 2, h - 18)
@@ -254,10 +256,10 @@ class InGameCard(BaseCard):
 
         # display cost
         coin = image("coin")
-        t = text(str(use_cost), 12, text_color, SMALL_FONT)
+        t = text(str(use_cost), font_size, text_color, SMALL_FONT)
         t = auto_crop(t)
 
-        r = pygame.Rect(12, 0, 9 + coin.get_width() + t.get_width() + 2, 16)
+        r = pygame.Rect(11, 0, 9 + coin.get_width() + t.get_width() + 2, 16)
         r.centery = h - 10 - 1
         pygame.draw.rect(img, YELLOW, r, border_radius=9999)
         pygame.draw.rect(img, ORANGE, r, width=1, border_radius=9999)
@@ -267,15 +269,25 @@ class InGameCard(BaseCard):
         img.blit(t, t.get_rect(midright=r.midleft - Vector2(2, 0)))
 
         # Level indication
-        level = len(name) - len(name.rstrip("I"))
-        r = pygame.Rect(0, 0, 17, 17)
-        r.centery = h - 10 - 1
-        r.right = w - 12
-        pygame.draw.rect(img, YELLOW, r, border_radius=9999)
-        pygame.draw.rect(img, ORANGE, r, width=1, border_radius=9999)
-        t = text(str(level), 12, text_color, SMALL_FONT)
-        t = auto_crop(t)
-        img.blit(t, t.get_rect(center=r.center))
+        level = name.rpartition(" ")[2]
+        level = ["I", "II", "III", "IV"].index(level) + 1
+        star = auto_crop(image("star"))
+        r = star.get_rect(midright=(w - 10, h - 11))
+        # r = pygame.Rect(0, 0, 8 + t.get_width(), 14)
+        # r.centery = h - 10 - 1
+        # r.right = w - 12
+        for i in range(level):
+            img.blit(star, r)
+            r.x -= r.w + 1
+            if i == 2:
+                r.right = w - 5
+                r.y -= 5
+
+        # t = auto_crop(text(str(level), font_size, text_color, SMALL_FONT))
+
+        # pygame.draw.rect(img, YELLOW, r, border_radius=9999)
+        # pygame.draw.rect(img, ORANGE, r, width=1, border_radius=9999)
+        # img.blit(t, t.get_rect(center=r.center))
 
         return img
 
