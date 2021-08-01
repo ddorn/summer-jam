@@ -25,6 +25,11 @@ class Player(Entity):
         self.score = 0
         self.coins = 0
 
+        self.hitless = True
+        self.kills = 0
+        self.bullets_shoot = 0
+        self.bullets_well_aimed = 0
+
     def logic(self):
         super().logic()
         self.fire_cooldown.tick()
@@ -59,6 +64,7 @@ class Player(Entity):
                     x = 0
                 y = abs(i - (self.bullets - 1) / 2) * 3 - 5
                 self.state.add(Bullet(self.center + (x, y), self, damage=self.fire_power))
+                self.bullets_shoot += 1
 
     def create_inputs(self):
         motion = Axis(pygame.K_a, pygame.K_d, JoyAxis(JOY_HORIZ_LEFT),).always_call(self.move)
@@ -79,15 +85,20 @@ class Player(Entity):
             self.state.replace_state(states.GameState())
 
     def did_hit(self, enemy, bullet):
-        pass
+        self.bullets_well_aimed += 1
 
     def did_kill(self, enemy: "Enemy", bullet):
         bonus = enemy.POINTS * self.state.game_values.points_bonus
         self.score += bonus
         self.coins += bonus / 10
+        self.kills += 1
 
     def did_hit_by(self, bullet):
-        pass
+        self.hitless = False
+
+    def go_next_level(self):
+        self.life = self.max_life
+        self.hitless = True
 
 
 class Bullet(Object):

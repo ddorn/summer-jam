@@ -22,6 +22,7 @@ class GameState(State):
         self.player = self.add(Player())
         self.deck = self.add(Deck())
         self.spawn()
+        self.levels = []
         self.level_ended = False
 
     def spawn(self):
@@ -65,7 +66,7 @@ class GameState(State):
                             SquareParticle(color)
                             .builder()
                             .at(center, a := uniform(0, 360))
-                            # .hsv(a, 0.8)
+                            .hsv(a, 0.8)
                             .velocity(random.gauss(3, 0.5))
                             .acceleration(-0.05)
                             .anim_fade()
@@ -75,6 +76,11 @@ class GameState(State):
                         )
 
                 self.push_state(states.ShopState(self.player))
+                self.go_next_level()
+
+    def go_next_level(self):
+        self.level_ended = False
+        self.player.go_next_level()
 
     def script(self):
         while True:
