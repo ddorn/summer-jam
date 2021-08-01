@@ -243,8 +243,7 @@ class InGameCard(BaseCard):
         super().__init__(img, name, descrition, effect, buy_cost, use_cost, blueprint)
 
     def compute_card_image(self, icon_surface, name: str, use_cost):
-        icon_surface = scale(icon_surface, 2)
-        bg_color = icon_surface.get_at((0, 0))
+        bg_color = YELLOW
         text_color = "black"
         font_size = 12
         w, h = 80, 120
@@ -258,7 +257,7 @@ class InGameCard(BaseCard):
         pygame.draw.rect(img, ORANGE, (0, 0, w, h - 10), width=1, border_radius=9)
 
         r = icon_surface.get_rect()
-        r.midbottom = (w / 2, h - 18)
+        r.midbottom = (w / 2, h - 22)
         img.blit(icon_surface, r)
 
         t = wrapped_text(name, 15, text_color, w - 4)
@@ -308,8 +307,7 @@ class InShopCard(BaseCard):
         super().__init__(img, name, description, effect, buy_cost, use_cost, blueprint)
 
     def compute_card_image(self, icon_surface, name: str, use_cost):
-        icon_surface = scale(icon_surface, 2)
-        bg_color = icon_surface.get_at((0, 0))
+        bg_color = YELLOW
         text_color = "black"
         font_size = 12
         w, h = 80, 120
