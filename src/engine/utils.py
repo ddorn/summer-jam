@@ -231,7 +231,8 @@ def outline(surf: pygame.Surface, color=(255, 255, 255)):
 @lru_cache(1000)
 def overlay(image: pygame.Surface, color, alpha=255):
     img = pygame.Surface(image.get_size())
-    img.set_colorkey((0, 0, 0))
+    img.fill(1)  # 1 is a color unlikely to be used (hopefuly)
+    img.set_colorkey(1)
     img.blit(image, (0, 0))
 
     mask = pygame.mask.from_surface(image)

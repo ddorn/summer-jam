@@ -232,6 +232,16 @@ class BaseCard(SpriteObject):
         level = self.name.rpartition(" ")[2]
         return ["I", "II", "III", "IV"].index(level) + 1
 
+    def can_use(self, player):
+        return True
+
+    @property
+    def image(self):
+        img = super().image
+        if self.can_use(self.state.player):
+            return img
+        return overlay(img, (0, 0, 0), 100)
+
 
 class InGameCard(BaseCard):
     def __init__(
@@ -379,6 +389,9 @@ class InShopCard(BaseCard):
             Transition(self, self.FRAME_COUNT // 4, start_pos=pos1, end_pos=pos1 + Vector2(0, -10)),
         )
         self.add_transition("use", Transition(self, self.FRAME_COUNT))
+
+    def can_use(self, player):
+        return player.coins > self.buy_cost
 
 
 class Deck(Object):
