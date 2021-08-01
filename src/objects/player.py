@@ -19,6 +19,7 @@ class Player(Entity):
         self.fire_cooldown = Cooldown(self.FIRE_COOLDOWN)
         self.health_bar = HealthBar((0, 0, 30, 1), RED, self)
         self.fire_power = self.FIRE_DAMAGE
+        self.bullets = 1
 
     def logic(self):
         super().logic()
@@ -36,7 +37,11 @@ class Player(Entity):
 
     def fire(self, _button):
         if self.fire_cooldown.fire():
-            self.state.add(Bullet(self.center, damage=self.fire_power))
+            w = 5 * (self.bullets - 1)
+            for i in range(self.bullets):
+                x = chrange(i, (0, self.bullets), (-w / 2, w / 2))
+                y = abs(i - (self.bullets - 1) / 2) * 3
+                self.state.add(Bullet(self.center + (x, y), damage=self.fire_power))
 
     def create_inputs(self):
         motion = Axis(pygame.K_a, pygame.K_d, JoyAxis(JOY_HORIZ_LEFT),).always_call(self.move)
