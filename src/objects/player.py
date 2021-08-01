@@ -1,3 +1,5 @@
+from pygame import Vector2
+
 from engine import *
 import states
 
@@ -20,6 +22,8 @@ class Player(Entity):
         self.health_bar = HealthBar((0, 0, 30, 1), RED, self)
         self.fire_power = self.FIRE_DAMAGE
         self.bullets = 2
+        self.score = 0
+        self.coins = 0
 
     def logic(self):
         super().logic()
@@ -30,6 +34,16 @@ class Player(Entity):
     def draw(self, gfx: "GFX"):
         super(Player, self).draw(gfx)
         self.health_bar.draw(gfx)
+
+        # Score
+        r = gfx.blit(scale(image("cup"), 2), topleft=(10, 10))
+        t = text(str(self.score), 16, WHITE)
+        gfx.blit(t, midleft=r.midright + Vector2(4, 0))
+
+        # Coins
+        r = gfx.blit(scale(image("coin"), 2), topleft=(10, r.bottom + 5))
+        t = text(str(self.coins), 16, WHITE)
+        gfx.blit(t, midleft=r.midright + Vector2(4, 0))
 
     def move(self, axis):
         self.pos.x += axis.value * self.VELOCITY

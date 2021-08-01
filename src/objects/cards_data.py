@@ -44,17 +44,21 @@ def change_fire_rate(state, data):
         state.player.fire_cooldown.auto_lock *= data[0]
 
 
-@card("Heal I", 100, 15, "Heal 10% of life", "fire_rate", data=10)
-@card("Heal II", 200, 30, "Heal 25% of life", "fire_rate", data=25)
-@card("Heal III", 200, 200, "Heal completely", "fire_rate", data=100)
+@card("Heal I", 100, 15, "Heal 100HP", "fire_rate", data=100)
+@card("Heal II", 200, 30, "Heal 200HP", "fire_rate", data=200)
+@card("Heal III", 300, 60, "Heal 500HP", "fire_rate", data=500)
+@card("Heal IV", 200, 200, "Heal completely", "fire_rate", data=None)
 def heal(state, data):
-    state.player.heal(state.player.max_life * data / 100)
+    if data is None:
+        state.player.heal(state.player.max_life)
+    else:
+        state.player.heal(data)
 
 
 @card("Bullet up I", 200, 10, "Two bullets per shot for 5 seconds", "fire_rate", data=(2, 5))
 @card("Bullet up II", 350, 15, "Three bullets per shot for 4 seconds", "fire_rate", data=(3, 4))
 @card("Bullet up III", 500, 20, "Three bullets per shot for 8 seconds", "fire_rate", data=(3, 8))
-@card("Bullet up IIII", 500, 200, "Permanently shoot one more bullet", "fire_rate", data=None)
+@card("Bullet up IV", 500, 200, "Permanently shoot one more bullet", "fire_rate", data=None)
 def bullet_up(state, data):
     if data is None:
         state.player.bullets += 1
@@ -101,3 +105,12 @@ def push_enemies(state, data):
 def danger_zone(state, data):
     state.game_values.enemy_damage_boost += data[0] / 100
     state.game_values.points_bonus += data[1] / 100
+
+
+@card("Sacrifice I", 100, 0, "Sacrifice 100HP for 10 coins", "fire_rate", data=(100, 10))
+@card("Sacrifice II", 200, 0, "Sacrifice 200HP for 25 coins", "fire_rate", data=(200, 25))
+@card("Sacrifice III", 400, 0, "Sacrifice 300HP for 40 coins", "fire_rate", data=(300, 40))
+def sacrifice(state, data):
+    if state.player.life > data[0]:
+        state.player.damage(data[0], True)
+        state.player.coins += data[1]
