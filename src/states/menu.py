@@ -13,7 +13,7 @@ class MenuState(State):
             Menu(
                 (W / 2, 150),
                 {
-                    "Play": self.push_state_callback(CardTestState),
+                    "Play": self.push_state_callback(GameState),
                     "Controls": self.push_state_callback(ControlsHelpState),
                     "Quit": App.MAIN_APP.quit,
                 },

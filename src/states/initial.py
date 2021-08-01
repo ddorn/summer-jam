@@ -2,9 +2,8 @@ from random import randint
 
 import pygame
 
-from src.engine import *
-from src.engine.state_transitions import *
-from .game import GameState
+from engine import *
+from engine.state_transitions import *
 
 
 class InitialState(State):

@@ -76,7 +76,7 @@ class Player(Entity):
 
         @self.state.do_later(60)
         def new_game():
-            self.state.replace_state(states.CardTestState())
+            self.state.replace_state(states.GameState())
 
     def did_hit(self, enemy, bullet):
         pass
