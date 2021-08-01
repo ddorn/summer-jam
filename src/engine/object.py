@@ -291,6 +291,7 @@ class Entity(SpriteObject):
         self.life -= amount
         if self.life < 0:
             self.life = 0
+            self.alive = False
 
         surf = font(20).render(str(int(amount)), False, RED)
 

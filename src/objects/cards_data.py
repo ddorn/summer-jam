@@ -74,7 +74,7 @@ def bullet_up(state, data):
 @card("Push enemies II", 200, 15, "Push enemies back three rows", "fire_rate", data=3)
 @card("Push enemies III", 400, 20, "Push enemies back five rows", "fire_rate", data=5)
 def push_enemies(state, data):
-    for enemy in state.get_all("Ennemy"):
+    for enemy in state.get_all("Enemy"):
         enemy.push_back(data)
 
 

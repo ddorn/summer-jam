@@ -9,7 +9,7 @@ __all__ = ["Player", "Bullet"]
 class Player(Entity):
     VELOCITY = 4
     SPAWN = W / 2, H - 20
-    FIRE_COOLDOWN = 0
+    FIRE_COOLDOWN = 24
     INITIAL_LIFE = 1000
     SIZE = (20, 12)
     FIRE_DAMAGE = 60
@@ -21,7 +21,7 @@ class Player(Entity):
         self.fire_cooldown = Cooldown(self.FIRE_COOLDOWN)
         self.health_bar = HealthBar((0, 0, 30, 1), RED, self)
         self.fire_power = self.FIRE_DAMAGE
-        self.bullets = 2
+        self.bullets = 1
         self.score = 0
         self.coins = 0
 
@@ -37,12 +37,12 @@ class Player(Entity):
 
         # Score
         r = gfx.blit(scale(image("cup"), 2), topleft=(10, 10))
-        t = text(str(self.score), 16, WHITE)
+        t = text(str(int(self.score)), 16, WHITE)
         gfx.blit(t, midleft=r.midright + Vector2(4, 0))
 
         # Coins
         r = gfx.blit(scale(image("coin"), 2), topleft=(10, r.bottom + 5))
-        t = text(str(self.coins), 16, WHITE)
+        t = text(str(int(self.coins)), 16, WHITE)
         gfx.blit(t, midleft=r.midright + Vector2(4, 0))
 
     def move(self, axis):
@@ -53,9 +53,12 @@ class Player(Entity):
         if self.fire_cooldown.fire():
             w = 5 * (self.bullets - 1)
             for i in range(self.bullets):
-                x = chrange(i, (0, self.bullets - 1), (-w / 2, w / 2))
+                if self.bullets > 1:
+                    x = chrange(i, (0, self.bullets - 1), (-w / 2, w / 2))
+                else:
+                    x = 0
                 y = abs(i - (self.bullets - 1) / 2) * 3 - 5
-                self.state.add(Bullet(self.center + (x, y), damage=self.fire_power))
+                self.state.add(Bullet(self.center + (x, y), self, damage=self.fire_power))
 
     def create_inputs(self):
         motion = Axis(pygame.K_a, pygame.K_d, JoyAxis(JOY_HORIZ_LEFT),).always_call(self.move)
@@ -75,14 +78,26 @@ class Player(Entity):
         def new_game():
             self.state.replace_state(states.CardTestState())
 
+    def did_hit(self, enemy, bullet):
+        pass
+
+    def did_kill(self, enemy: "Enemy", bullet):
+        bonus = enemy.POINTS * self.state.game_values.points_bonus
+        self.score += bonus
+        self.coins += bonus / 10
+
+    def did_hit_by(self, bullet):
+        pass
+
 
 class Bullet(Object):
     VELOCITY = 7
     SIZE = (2, 5)
 
-    def __init__(self, pos, damage=100, friend=True):
+    def __init__(self, pos, shooter, damage=100, friend=True):
         direction = -self.VELOCITY if friend else self.VELOCITY / 2
         super().__init__(pos, self.SIZE, vel=(0, direction))
+        self.shooter = shooter
         self.friend = friend
         self.damage = damage
 
@@ -90,18 +105,26 @@ class Bullet(Object):
         super().logic()
         if not SCREEN.inflate(10, 10).collidepoint(self.pos):
             self.alive = False
+            return
 
-        targets = self.state.get_all("Ennemy") if self.friend else [self.state.player]
+        targets = self.state.get_all("Enemy") if self.friend else [self.state.player]
 
         target: Entity
         for target in targets:
+            if not target.alive:
+                continue
+
             if target.rect.colliderect(self.rect):
                 target.damage(self.damage)
                 self.alive = False
 
                 if self.friend:
-                    # Todo: increase score
-                    pass
+                    self.state.player.did_hit(target, self)
+                    if not target.alive:
+                        self.state.player.did_kill(target, self)
+                else:
+                    self.state.player.did_hit_by(self)
+
                 return
 
     def draw(self, gfx: "GFX"):

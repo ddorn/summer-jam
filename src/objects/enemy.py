@@ -5,14 +5,15 @@ from pygame import Vector2
 
 from engine import *
 
-__all__ = ["Ennemy", "EnemyBlockAI", "SnakeAI"]
+__all__ = ["Enemy", "EnemyBlockAI", "SnakeAI"]
 
 
-class Ennemy(Entity):
+class Enemy(Entity):
     EDGE = 30
-    SPEED = 1
+    SPEED = 0.5
     SCALE = 2
-    INITIAL_LIFE = 100
+    INITIAL_LIFE = 50
+    POINTS = 10
 
     FIRE_DAMAGE = 100
 
@@ -29,7 +30,7 @@ class Ennemy(Entity):
         from objects import Bullet
 
         boost = self.state.game_values.enemy_damage_boost
-        self.state.add(Bullet(self.center, damage=self.FIRE_DAMAGE * boost, friend=False))
+        self.state.add(Bullet(self.center, self, damage=self.FIRE_DAMAGE * boost, friend=False))
 
     def logic(self):
         self.ai.logic(self)
@@ -50,7 +51,7 @@ class Ennemy(Entity):
                 yield
 
     def on_death(self):
-        self.state.particles.add_explosion(self.center,)
+        self.state.particles.add_explosion(self.center)
 
 
 class AI:
@@ -59,7 +60,7 @@ class AI:
 
     def __init__(self):
         # All the enemies controled by the same AI
-        self.controled: Set[Ennemy] = set()
+        self.controled: Set[Enemy] = set()
 
         # Hack to have the logic called only once per frame
         self.called_on = set()
@@ -119,7 +120,7 @@ class EnemyBlockAI(AI):
             self.set_direction(self.direction, 0)
         elif wall_left or wall_right:
             self.direction *= -1  # swap direction for next row
-            self.go_down_duration = int(self.ROW_HEIGHT / speed_boost / Ennemy.SPEED)
+            self.go_down_duration = int(self.ROW_HEIGHT / speed_boost / Enemy.SPEED)
             self.set_direction(0, 1)  # down
 
         for enemy in self.controled:
@@ -136,7 +137,7 @@ class EnemyBlockAI(AI):
             for col in range(cols):
                 x = chrange(col, (0, cols - 1), (self.EDGE * 3, W - self.EDGE * 3))
                 y = self.EDGE + row * self.ROW_HEIGHT
-                yield Ennemy((x, y), self)
+                yield Enemy((x, y), self)
 
 
 class SnakeAI(AI):
