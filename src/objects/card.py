@@ -1,4 +1,4 @@
-from random import gauss
+from random import choice, gauss
 from typing import Dict
 
 import pygame
@@ -207,9 +207,7 @@ class BaseCard(SpriteObject):
 
         self.state.player.coins -= self.cost
 
-        if self.effect:
-            self.effect(self.state)
-
+        self._use()
         self.start_transition("use")
         self.used = True
         play("use_card")
@@ -247,6 +245,9 @@ class BaseCard(SpriteObject):
     @property
     def cost(self):
         return self.use_cost
+
+    def _use(self):
+        pass
 
 
 class InGameCard(BaseCard):
@@ -316,6 +317,10 @@ class InGameCard(BaseCard):
 
     def can_use(self, player):
         return player.coins >= self.use_cost
+
+    def _use(self):
+        if self.effect:
+            self.effect(self.state)
 
 
 class InShopCard(BaseCard):
@@ -406,6 +411,9 @@ class InShopCard(BaseCard):
     def cost(self):
         return self.buy_cost
 
+    def _use(self):
+        self.state.player.deck.append(self.blueprint(InGameCard))
+
 
 class Deck(Object):
     def __init__(self, shop_mode=False):
@@ -422,6 +430,10 @@ class Deck(Object):
         except IndexError:
             return None
 
+    def go_next_level(self):
+        self.cards.clear()
+        self.add_card(*self.state.player.deck[:5])
+
     def script(self):
         yield
         self.toggle_cards(0)
@@ -434,6 +446,11 @@ class Deck(Object):
 
         for i, card in enumerate(self.cards):
             card.create_transitions(i)
+
+    def replace_selected(self, card):
+        self.cards[self.selected] = card
+        self.state.add(card)
+        card.create_transitions(self.selected)
 
     def toggle_cards(self, _):
         self.shown = not self.shown
@@ -470,12 +487,21 @@ class Deck(Object):
         if not self.cards or self.selected > len(self.cards) or not self.shown:
             return
 
-        print(self.selected_card)
-        if not self.selected_card.can_use(self.state.player):
+        player = self.state.player
+        card = self.selected_card
+        if not card.can_use(player):
             return
 
-        self.cards[self.selected].use()
-        del self.cards[self.selected]
+        card.use()
+
+        if not self.shop_mode:
+            new = choice(player.deck).blueprint(InGameCard)
+
+            self.replace_selected(new)
+            new.show()
+        else:
+            del self.cards[self.selected]
+
         try:
             self.selected = self.selected % len(self.cards)
             self.cards[self.selected].hover(True, True)

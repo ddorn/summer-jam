@@ -22,14 +22,9 @@ class GameState(State):
         self.game_values = GameValues()
         self.player = self.add(Player())
         self.deck = self.add(Deck())
-        self.spawn()
         self.wave = 0
         self.level_ended = False
         self.go_next_level()
-
-    def spawn(self):
-        for _ in range(5):
-            self.deck.add_card(random.choice(ALL_CARDS)())
 
     def create_inputs(self) -> Inputs:
         inputs = super().create_inputs()
@@ -77,6 +72,7 @@ class GameState(State):
         self.wave += 1
         self.level_ended = False
         self.player.go_next_level()
+        self.deck.go_next_level()
 
         # Remove all bullets
         self.objects = {o for o in self.objects if not isinstance(o, Bullet)}

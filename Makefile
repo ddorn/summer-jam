@@ -2,7 +2,7 @@
 
 END=\033[0m
 GREEN=\033[34m
-NAME=game
+NAME=xxx
 
 all: linux windows zip
 

@@ -1,6 +1,9 @@
+from random import shuffle
+
 from pygame import Vector2
 
 from engine import *
+import objects
 import states
 
 __all__ = ["Player", "Bullet"]
@@ -25,7 +28,8 @@ class Player(Entity):
         self.score = 0
         self.coins = 0
 
-        self.deck = []
+        self.deck = [card for Card in objects.ALL_CARDS if (card := Card()).level == 1]
+        shuffle(self.deck)
 
         self.hitless = True
         self.kills = 0
