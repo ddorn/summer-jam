@@ -47,7 +47,7 @@ class GameState(State):
 
             @self.add_script_decorator
             def fireworks():
-                for _ in range(0):
+                for _ in range(100):
                     yield from range(6)
                     center = random_in_rect(SCREEN)
                     color = random.choice([ORANGE, RED, GREEN, YELLOW])

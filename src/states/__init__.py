@@ -3,3 +3,4 @@ from .game import GameState
 from .pause import PauseState
 from .shop import ShopState
 from .menu import MenuState
+from .warning import WarningState

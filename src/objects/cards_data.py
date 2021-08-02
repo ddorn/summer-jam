@@ -28,13 +28,13 @@ def card(name, cost, use_cost, descrition, sprite_idx, *, data=None):
 
 
 @card(
-    "Firerate I", 200, 5, "Double the firerate for 5 seconds", 7, data=(2, 5),
+    "Firerate I", 100, 5, "Double the firerate for 5 seconds", 7, data=(2, 5),
 )
 @card(
-    "Firerate II", 350, 9, "Triple the firerate for 4 seconds", 7, data=(3, 4),
+    "Firerate II", 200, 9, "Triple the firerate for 4 seconds", 7, data=(3, 4),
 )
 @card(
-    "Firerate III", 500, 12, "Triple the firerate for 8 seconds", 7, data=(3, 8),
+    "Firerate III", 400, 12, "Triple the firerate for 8 seconds", 7, data=(3, 8),
 )
 def change_fire_rate(state, data):
 

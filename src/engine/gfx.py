@@ -3,6 +3,8 @@ from contextlib import contextmanager
 import pygame
 import pygame.gfxdraw
 
+from .assets import text, wrapped_text
+
 __all__ = ["GFX"]
 
 
@@ -97,6 +99,15 @@ class GFX:
         self.surf.blit(surf, r)
 
         return r
+
+    def text(self, txt, size, color, font_name=None, **anchor):
+        """Draw a text on the screen."""
+        t = text(txt, size, color, font_name)
+        return self.blit(t, **anchor)
+
+    def wrap_text(self, txt, size, color, max_width, font_name=None, align=False, **anchor):
+        t = wrapped_text(txt, size, color, max_width, font_name, align)
+        return self.blit(t, **anchor)
 
     # Draw functions
 

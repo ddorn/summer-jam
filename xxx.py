@@ -29,10 +29,9 @@ if pygame.version.vernum < (2, 0, 1):
 sys.path.append(str((Path(__file__).parent / "src").absolute()))
 
 # It is important not to import from SRC
-from states.game import GameState
-from states.menu import MenuState
 from engine import SIZE, App, IntegerScaleScreen
+from states import WarningState
 
 if __name__ == "__main__":
     # App(GameState, IntegerScaleScreen(SIZE)).run()
-    App(MenuState, IntegerScaleScreen(SIZE)).run()
+    App(WarningState, IntegerScaleScreen(SIZE)).run()
