@@ -1,4 +1,5 @@
 from collections import defaultdict
+from random import choices
 from typing import Set
 
 from pygame import Vector2
@@ -8,46 +9,22 @@ from engine import *
 __all__ = ["Enemy", "EnemyBlockAI", "SnakeAI"]
 
 
-def damager(enemy):
-    enemy.FIRE_DAMAGE *= 4
-    enemy.color = (255, 0, 0)
-    enemy.POINTS = 30
-
-
-def tank(enemy):
-    enemy.INITIAL_LIFE *= 3
-    enemy.color = (182, 3, 252)
-    enemy.POINTS = 45
-    print(enemy.INITIAL_LIFE)
-
-
-def worthy(enemy):
-    enemy.color = (255, 215, 0)
-    enemy.POINTS = 100
-
-
-enemy_datas = (
-    lambda x: None,
-    tank,
-    damager,
-    worthy,
-)
-
-
 class Enemy(Entity):
     EDGE = 30
     SPEED = 0.5
     SCALE = 2
     INITIAL_LIFE = 50
     POINTS = 10
+    COLOR = (255, 255, 255)
+    PROBA = 10
+    WAVE = 1
 
     FIRE_DAMAGE = 100
 
     IMAGE = Assets.Images.enemies(0)
 
-    def __init__(self, pos, ai, id=0):
-        self.color = (255, 255, 255)
-        enemy_datas[id](self)
+    def __init__(self, pos, ai):
+        self.color = self.COLOR
         self.IMAGE.set_palette_at(1, self.color)
         self.IMAGE = auto_crop(self.IMAGE)
 
@@ -99,6 +76,31 @@ class Enemy(Entity):
 
     def on_death(self):
         self.state.particles.add_explosion(self.center)
+
+
+class Damager(Enemy):
+    FIRE_DAMAGE = Enemy.FIRE_DAMAGE * 3
+    COLOR = (255, 0, 0)
+    POINTS = 30
+
+    PROBA = 4
+    WAVE = 3
+
+
+class Tank(Enemy):
+    INITIAL_LIFE = Enemy.INITIAL_LIFE * 4
+    COLOR = (182, 3, 252)
+    POINTS = 45
+
+    PROBA = 3
+    WAVE = 2
+
+
+class Worthy(Enemy):
+    COLOR = (255, 215, 0)
+    POINTS = 100
+    PROBA = 1
+    WAVE = 3
 
 
 class AI:
@@ -186,16 +188,22 @@ class EnemyBlockAI(AI):
         # As min() and max() have empty collections.
         super().logic(enemy)
 
-    def spawn(self, rows=4, cols=10):
+    def spawn(self, rows=4, cols=10, wave=1):
+        classes = [c for c in Enemy.__subclasses__() if c.WAVE <= wave] + [Enemy]
+        weights = [c.PROBA for c in classes]
+
         for row in range(rows):
             for col in range(cols):
                 x = chrange(col, (0, cols - 1), (self.EDGE * 3, W - self.EDGE * 3))
                 y = self.EDGE + row * self.ROW_HEIGHT
-                yield Enemy((x, y), self, randrange(0, len(enemy_datas)))
+
+                cls = choices(classes, weights)[0]
+                yield cls((x, y), self)
 
     def spawn_wave(self, wave):
+        print(wave)
         rows = 4 + wave // 3
-        yield from self.spawn(rows)
+        yield from self.spawn(rows, wave=wave)
 
 
 class SnakeAI(AI):
